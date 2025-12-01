@@ -1,0 +1,9 @@
+{
+    "n_total_somites": 28,
+    "n_bad_somites": 0,
+    "n_total_somites_err": 1,
+    "n_bad_somites_err": 0,
+    "valid": true,
+    "correct_orientation": null,
+    "comments": ""
+}
