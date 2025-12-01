@@ -21,6 +21,7 @@ from django.urls import include
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 from django.contrib.staticfiles.storage import staticfiles_storage
 
@@ -31,6 +32,9 @@ from bokeh_django import autoload, directory, document, static_extensions
 
 
 urlpatterns = [
+
+    path("", TemplateView.as_view(template_name="index.html"), name="index"),
+
     path(r"well_mapping/", views_wm.index, name="index"),
     path(r"well_mapping/bokeh_dashboard", views_wm.bokeh_dashboard, name="bokeh_dashboard"),
     
