@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table with Search and Sorting</title>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet"
+        href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+    <style>
+        table.dataTable tbody td {
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Well Table</h2>
+
+<table id="well-table" class="display">
+    <thead>
+        <tr>
+            <th>Experiment</th>
+            <th>Well</th>
+            <th>Valid</th>
+            <th>Drugs</th>
+            <th>Concentrations</th>
+            <th>N dest wells</th>
+            <th>N fish</th>
+            <th>N fish valid</th>
+            <th>N fish not valid</th>
+            <th>avg somites</th>
+            <th>avg bad somites</th>
+            <th>fraction</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in rows %}
+        <tr>
+            <td>{{ r.exp }}</td>
+            <td>{{ r.well }}</td>
+            <td>{{ r.valid }}</td>
+
+            <!-- DRUG NAMES -->
+            <td>
+                {% for d in r.drugs %}
+                    {{ d.name }}<br>
+                {% endfor %}
+            </td>
+
+            <!-- DRUG CONCENTRATIONS -->
+            <td>
+                {% for d in r.drugs %}
+                    {{ d.conc }}<br>
+                {% endfor %}
+            </td>
+            <td>{{ r.number_of_dest_wells }}</td>
+            <td>{{ r.number_of_fish }}</td>
+            <td>{{ r.number_of_fish_valid }}</td>
+            <td>{{ r.number_of_fish_notvalid }}</td>
+            <td>{{ r.avg_total_somites|floatformat:2 }}</td>
+            <td>{{ r.avg_bad_somites|floatformat:2 }}</td>
+            <td>{{ r.fraction_bad_somites|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+            
+
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#well-table').DataTable({
+        pageLength: 25,
+        lengthMenu: [10, 25, 50, 100],
+    });
+});
+</script>
+
+</body>
+</html>
