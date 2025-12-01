@@ -1,5 +1,5 @@
 """
-ASGI config for VAST_DS project.
+ASGI config for VAST_HS project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
 
 #from django.core.asgi import get_asgi_application
 
-#os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VAST_DS.settings')
+#os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'VAST_HS.settings')
 
 #application = get_asgi_application()
 
