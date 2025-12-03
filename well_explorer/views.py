@@ -69,9 +69,9 @@ model_orientation.eval()
 import vast_leica_mapping as vlm
 
 LOCALPATH_CH = "/Users/helsens/Software/github/EPFL-TOP/VAST-DS/data"
-LOCALPATH_HIVE= r'Y:\raw_data\microscopy\vast'
-LOCALPATH_RAID5 =r'D:\vast'
-LOCALPATH_TRAINING=r'D:\vast\training_data'
+LOCALPATH_HIVE= r'Y:\raw_data\microscopy\vast\VAST-HS'
+LOCALPATH_RAID5 =r'D:\vast\VAST-HS'
+LOCALPATH_TRAINING=r'D:\vast\VAST-HS\training_data'
 
 LOCALPATH = LOCALPATH_HIVE
 if os.path.exists(LOCALPATH_CH):
