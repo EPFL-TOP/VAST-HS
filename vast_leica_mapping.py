@@ -256,6 +256,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_path', type=str, default="data", help="Path to the data directory.")
     parser.add_argument('--experiment_name', type=str, default="VAST_2025-07-08", help="Name of the experiment.")
     parser.add_argument('--scan_lif', action='store_true', help="If set, only scan the LIF file for metadata.")
+    parser.add_argument('--use_nplanes', action='store_true', help="If set, use the planes to match.")
 
     args = parser.parse_args()
 
@@ -264,5 +265,5 @@ if __name__ == '__main__':
     if args.scan_lif:
         scan_lif(file_path, experiment_name)
     else:
-        map_well_to_vast(file_path, experiment_name)
+        map_well_to_vast(file_path, experiment_name, use_nplanes=args.use_nplanes)
         #orient_fish(data_path=file_path, experiment_name=experiment_name)
