@@ -212,6 +212,28 @@ def scan_lif(data_path, experiment_name):
             print('Image name is empty, skipping this image.')
             continue
 
+        print(' --->>> Processing Image name:', imname)
+        im_type = imname.split('/')[-1]
+
+        nPlanes = meta.getPlaneCount(iImage) # Number of Planes within the image
+        
+        print("Image #",iImage,"  imagename=",meta.getImageName(iImage), " nPlanes=",nPlanes)
+        print("acq date =", meta.getImageAcquisitionDate(iImage).asDateTime(DateTimeZone.UTC).getMillis())
+        print("acq date =", meta.getImageAcquisitionDate(iImage).asDateTime(DateTimeZone.UTC))
+        timestamp=int(meta.getImageAcquisitionDate(iImage).asDateTime(DateTimeZone.UTC).getMillis())/1000.
+        dt_object = datetime.fromtimestamp(timestamp)
+        print('datetime=',dt_object)
+        for iPlane in range(nPlanes):
+            zct = reader.getZCTCoords(iPlane)
+            print("Plane C:",zct[0]," Z:",zct[1]," T:",zct[2])
+            if meta.getPlaneDeltaT(iImage,iPlane)==None:
+                print(f"Skipping plane {iPlane} for image {iImage} as PlaneDeltaT is None.")
+                continue
+            dt_object = datetime.fromtimestamp(timestamp+float(meta.getPlaneDeltaT(iImage,iPlane).value().doubleValue()))
+            
+            print("   plane= ", iPlane,"    Acquired at ",meta.getPlaneDeltaT(iImage,iPlane).value().doubleValue(), '  ',dt_object)
+
+
 
 if __name__ == '__main__':
     """
