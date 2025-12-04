@@ -23,7 +23,7 @@ DateTimeZone  = jimport('org.joda.time.DateTimeZone')
 
 
 
-def map_well_to_vast(data_path, experiment_name):
+def map_well_to_vast(data_path, experiment_name, use_nplanes=False):
     """
     Maps the well to the VAST file and prints metadata information.
     """
@@ -52,7 +52,7 @@ def map_well_to_vast(data_path, experiment_name):
     plates = glob.glob(os.path.join(data_path, experiment_name, 'VAST images', 'Plate*'))
     print(f"Found plates: {plates}")
     well_dict={}
-
+    plate_dict={}
     for p in plates:
         if not os.path.isdir(p):
             print(f"Skipping {p} as it is not a directory.")
@@ -63,6 +63,7 @@ def map_well_to_vast(data_path, experiment_name):
         if not wells:
             print(f"No wells found in {p}.")
             continue
+        plate_dict[p]=len(wells)
         for w in wells:
             print(f"Processing well: {w}")
             vast_files = glob.glob(os.path.join(w, '*.tiff'))
@@ -105,9 +106,20 @@ def map_well_to_vast(data_path, experiment_name):
             print('Image name is empty, skipping this image.')
             continue
 
-        if 'Plate' not in imname and 'plate' not in imname:
+        if 'Plate' not in imname and 'plate' not in imname and use_nplanes==False:
             print(f"Skipping image {iImage} with name {imname} as it does not contain 'Plate' or 'plate'.")
             continue
+
+        if use_nplanes==True:
+            nPlanes = meta.getPlaneCount(iImage) # Number of Planes within the image
+            for p in plate_dict:
+                if math.fabs(nPlanes-plate_dict[p])/plate_dict[p]<0.2:
+                    print(f"Image {iImage} with name {imname} has {nPlanes} planes, which is more than 20% off nPlanes={nPlanes} nwell={plate_dict[p]}.")
+                    continue
+                else:
+                    print(f"Image {iImage} with name {imname} matched to plate {p} with {plate_dict[p]} wells based on nPlanes={nPlanes}.")
+
+
 
         print(' --->>> Processing Image name:', imname)
         im_type = imname.split('/')[-1]
