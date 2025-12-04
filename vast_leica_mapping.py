@@ -266,4 +266,4 @@ if __name__ == '__main__':
         scan_lif(file_path, experiment_name)
     else:
         map_well_to_vast(file_path, experiment_name, use_nplanes=args.use_nplanes)
-        #orient_fish(data_path=file_path, experiment_name=experiment_name)
+        orient_fish(data_path=file_path, experiment_name=experiment_name)
