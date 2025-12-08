@@ -110,14 +110,14 @@ def map_well_to_vast(data_path, experiment_name, use_nplanes=False):
             print(f"Skipping image {iImage} with name {imname} as it does not contain 'Plate' or 'plate'.")
             continue
 
-        if use_nplanes==True:
-            nPlanes = meta.getPlaneCount(iImage) # Number of Planes within the image
-            for p in plate_dict:
-                if math.fabs(nPlanes-plate_dict[p])/plate_dict[p]<0.2:
-                    print(f"Image {iImage} with name {imname} has {nPlanes} planes, which is more than 20% off nPlanes={nPlanes} nwell={plate_dict[p]}.")
-                    continue
-                else:
-                    print(f"Image {iImage} with name {imname} matched to plate {p} with {plate_dict[p]} wells based on nPlanes={nPlanes}.")
+        #if use_nplanes==True:
+        #    nPlanes = meta.getPlaneCount(iImage) # Number of Planes within the image
+        #    for p in plate_dict:
+        #        if math.fabs(nPlanes-plate_dict[p])/plate_dict[p]<0.2:
+        #            print(f"Image {iImage} with name {imname} has {nPlanes} planes, which is more than 20% off nPlanes={nPlanes} nwell={plate_dict[p]}.")
+        #            continue
+        #        else:
+        #            print(f"Image {iImage} with name {imname} matched to plate {p} with {plate_dict[p]} wells based on nPlanes={nPlanes}.")
 
 
 
