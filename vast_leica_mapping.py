@@ -150,7 +150,8 @@ def map_well_to_vast(data_path, experiment_name, use_nplanes=False):
                     sel_well=w
                     minDeltaT=delta_t
             print("   plane= ", iPlane,"    Acquired at ",meta.getPlaneDeltaT(iImage,iPlane).value().doubleValue(), '  ',dt_object,'  ',sel_well, '   delta_t=',minDeltaT)
-
+            print('   well time= ', well_dict[sel_well],'  ',datetime.fromtimestamp(well_dict[sel_well]))
+            print('   timestamp= ', timestamp)
             #bytes_arr=np.array(reader.openBytes(iPlane), np.uint8)
             bytes_arr=np.array(reader.openBytes(iPlane))
             arr = np.frombuffer(bytes_arr, dtype=np.uint16)  # or dtype='<u2' / '>u2' if needed
