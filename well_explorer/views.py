@@ -855,7 +855,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     dropdown_bad_somites_cat1  = bokeh.models.Select(value='Select a value', title='# bad somites cat1',  options=['Select a value','0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
     dropdown_bad_somites_cat2  = bokeh.models.Select(value='Select a value', title='# bad somites cat2',  options=['Select a value','0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
     dropdown_bad_somites_cat3  = bokeh.models.Select(value='Select a value', title='# bad somites cat3',  options=['Select a value','0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
-    dropdown_total_somites_err = bokeh.models.Select(value='0', title='# total somites error', options=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+    dropdown_total_somites_err = bokeh.models.Select(value='0', title='# total somites err', options=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
     dropdown_good_image        = bokeh.models.Select(value='Yes', title='Good image', options=['Yes', 'No'])
     dropdown_good_orientation  = bokeh.models.Select(value='Not set', title='Good orientation', options=['Not set', 'Yes', 'No'])
     images_comments            = bokeh.models.widgets.TextAreaInput(title="Comments if any:", value='', rows=7, width=200, css_classes=["font-size:18px"])
@@ -1054,7 +1054,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                         props = dest.dest_well_properties  # reverse OneToOne accessor
                         #if props.valid and props.n_total_somites>=0 and props.n_bad_somites >=0:
                         #Add false to train other model
-                        if props.n_total_somites>=0 and props.n_bad_somites >=0:
+                        if props.n_total_somites>=0 and props.n_bad_somites_cat1 >=0 and props.n_bad_somites_cat2 >=0 and props.n_bad_somites_cat3 >=0:
                             rand=random.uniform(0,1)
                             if rand>0.2: outdir=os.path.join(LOCALPATH_TRAINING,'train')
                             else: outdir=os.path.join(LOCALPATH_TRAINING,'valid')
@@ -1154,8 +1154,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                        bokeh.layouts.row(indent,  bokeh.layouts.column(plot_wellplate_dest, plot_wellplate_dest_2),
                                                          bokeh.layouts.column(bokeh.layouts.row(bokeh.layouts.Spacer(width=10), 
                                                                                                 bokeh.layouts.column(contrast_slider,predict_button, use_corrected_checkbox), 
-                                                                                                bokeh.layouts.column(bokeh.layouts.row(dropdown_total_somites, dropdown_total_somites_err,dropdown_good_image), 
-                                                                                                                     bokeh.layouts.row(dropdown_bad_somites_cat1, dropdown_bad_somites_cat2, dropdown_bad_somites_cat3, dropdown_good_orientation)),
+                                                                                                bokeh.layouts.column(bokeh.layouts.row(dropdown_total_somites, dropdown_total_somites_err,dropdown_good_image,dropdown_good_orientation), 
+                                                                                                                     bokeh.layouts.row(dropdown_bad_somites_cat1, dropdown_bad_somites_cat2, dropdown_bad_somites_cat3)),
                                                                                                 bokeh.layouts.column(saveimages_button ,images_comments)),
                                                                               bokeh.layouts.row(prediction_message),
                                                                               bokeh.layouts.row(plot_img_bf, bokeh.layouts.Spacer(width=10),plot_img_yfp),
@@ -1212,14 +1212,18 @@ def sortable_table(request):
         n_fish_valid = 0
         n_fish_notvalid = 0
         n_total_somites = 0
-        n_bad_somites = 0
+        n_bad_somites_cat1 = 0
+        n_bad_somites_cat2 = 0
+        n_bad_somites_cat3 = 0
         for dest in dest_wells:
             try:
                 props = dest.dest_well_properties  # reverse OneToOne accessor
                 if props.valid:
                     n_fish_valid +=1
                     n_total_somites += props.n_total_somites if props.n_total_somites is not None else 0
-                    n_bad_somites   += props.n_bad_somites   if props.n_bad_somites is not None else 0
+                    n_bad_somites_cat1 += props.n_bad_somites_cat1 if props.n_bad_somites_cat1 is not None else 0
+                    n_bad_somites_cat2 += props.n_bad_somites_cat2 if props.n_bad_somites_cat2 is not None else 0
+                    n_bad_somites_cat3 += props.n_bad_somites_cat3 if props.n_bad_somites_cat3 is not None else 0
                 else:
                     n_fish_notvalid +=1
             except DestWellProperties.DoesNotExist:
@@ -1237,9 +1241,13 @@ def sortable_table(request):
             "number_of_fish_valid": n_fish_valid,
             "number_of_fish_notvalid": n_fish_notvalid,
             "avg_total_somites": n_total_somites / n_fish_valid if n_fish_valid > 0 else None,
-            "avg_bad_somites": n_bad_somites / n_fish_valid if n_fish_valid > 0 else None,
-            "fraction_bad_somites": (n_bad_somites / n_total_somites) if n_total_somites > 0 else None,
-            
+            "avg_bad_somites_cat1": n_bad_somites_cat1 / n_fish_valid if n_fish_valid > 0 else None,
+            "avg_bad_somites_cat2": n_bad_somites_cat2 / n_fish_valid if n_fish_valid > 0 else None,
+            "avg_bad_somites_cat3": n_bad_somites_cat3 / n_fish_valid if n_fish_valid > 0 else None,
+            "fraction_bad_somites_cat1": (n_bad_somites_cat1 / n_total_somites) if n_total_somites > 0 else None,
+            "fraction_bad_somites_cat2": (n_bad_somites_cat2 / n_total_somites) if n_total_somites > 0 else None,
+            "fraction_bad_somites_cat3": (n_bad_somites_cat3 / n_total_somites) if n_total_somites > 0 else None,
+
         }
         if len(well_data["drugs"])>0:  # Only add wells that have drugs
             drugs_data.append(well_data)
