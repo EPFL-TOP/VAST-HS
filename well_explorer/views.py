@@ -405,7 +405,14 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             image_message.text = "<b style='color:red; font-size:18px;'>No images found for selected well {}</b>".format(position[0][1] + position[0][0])
             image_message.visible = True
             prediction_message.visible = False
-
+            dropdown_total_somites.value = 'Select a value'
+            dropdown_bad_somites_cat1.value  = 'Select a value'
+            dropdown_bad_somites_cat2.value  = 'Select a value'
+            dropdown_bad_somites_cat3.value  = 'Select a value'
+            dropdown_total_somites_err.value = '0'
+            dropdown_good_image.value = 'Yes'
+            dropdown_good_orientation.value = 'Not set'
+            images_comments.value = ''
             return
 
         image_message.text = ""
@@ -442,6 +449,14 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             print('No source well found for dest position:', position[0])
             drug_message.text = "<b style='color:red; font-size:18px;'>No source well found for selected well {}</b>".format(position[0][1] + position[0][0])
             drug_message.visible = True
+            dropdown_total_somites.value = 'Select a value'
+            dropdown_bad_somites_cat1.value  = 'Select a value'
+            dropdown_bad_somites_cat2.value  = 'Select a value'
+            dropdown_bad_somites_cat3.value  = 'Select a value'
+            dropdown_total_somites_err.value = '0'
+            dropdown_good_image.value = 'Yes'
+            dropdown_good_orientation.value = 'Not set'
+            images_comments.value = ''
             return
         drugs = dest[0].source_well.drugs.all()
         items_html = "".join(
@@ -468,12 +483,19 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 dropdown_total_somites.value = str(dest_well_properties.n_total_somites)
             else:
                 dropdown_total_somites.value = 'Select a value'
-            if dest_well_properties.n_bad_somites is not None:
-                dropdown_bad_somites.value  = str(dest_well_properties.n_bad_somites)
+            if dest_well_properties.n_bad_somites_cat1 is not None:
+                dropdown_bad_somites_cat1.value  = str(dest_well_properties.n_bad_somites_cat1)
             else:
-                dropdown_bad_somites.value = 'Select a value'
+                dropdown_bad_somites_cat1.value = 'Select a value'
+            if dest_well_properties.n_bad_somites_cat2 is not None:
+                dropdown_bad_somites_cat2.value  = str(dest_well_properties.n_bad_somites_cat2)
+            else:
+                dropdown_bad_somites_cat2.value = 'Select a value'
+            if dest_well_properties.n_bad_somites_cat3 is not None:
+                dropdown_bad_somites_cat3.value  = str(dest_well_properties.n_bad_somites_cat3)
+            else:
+                dropdown_bad_somites_cat3.value = 'Select a value'
             dropdown_total_somites_err.value = str(dest_well_properties.n_total_somites_err)
-            dropdown_bad_somites_err.value  = str(dest_well_properties.n_bad_somites_err)
             if dest_well_properties.valid:
                 dropdown_good_image.value = 'Yes'
             else:
@@ -492,9 +514,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         except DestWellProperties.DoesNotExist:
             print('No properties found for dest well:', dest)
             dropdown_total_somites.value = 'Select a value'
-            dropdown_bad_somites.value  = 'Select a value'
+            dropdown_bad_somites_cat1.value  = 'Select a value'
+            dropdown_bad_somites_cat2.value  = 'Select a value'
+            dropdown_bad_somites_cat3.value  = 'Select a value'
             dropdown_total_somites_err.value = '0'
-            dropdown_bad_somites_err.value  = '0'
             dropdown_good_image.value = 'Yes'
             dropdown_good_orientation.value = 'Not set'
             images_comments.value = ''
@@ -608,12 +631,24 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 dropdown_total_somites.value = str(dest_well_properties.n_total_somites)
             else:
                 dropdown_total_somites.value = 'Select a value'
-            if dest_well_properties.n_bad_somites is not None:
-                dropdown_bad_somites.value  = str(dest_well_properties.n_bad_somites)
+
+            if dest_well_properties.n_bad_somites_cat1 is not None:
+                dropdown_bad_somites_cat1.value  = str(dest_well_properties.n_bad_somites_cat1)
             else:
-                dropdown_bad_somites.value = 'Select a value'
+                dropdown_bad_somites_cat1.value = 'Select a value'
+
+            if dest_well_properties.n_bad_somites_cat2 is not None:
+                dropdown_bad_somites_cat2.value  = str(dest_well_properties.n_bad_somites_cat2)
+            else:
+                dropdown_bad_somites_cat2.value = 'Select a value'
+
+            if dest_well_properties.n_bad_somites_cat3 is not None:
+                dropdown_bad_somites_cat3.value  = str(dest_well_properties.n_bad_somites_cat3)
+            else:
+                dropdown_bad_somites_cat3.value = 'Select a value'
+
             dropdown_total_somites_err.value = str(dest_well_properties.n_total_somites_err)
-            dropdown_bad_somites_err.value  = str(dest_well_properties.n_bad_somites_err)
+
             if dest_well_properties.valid:
                 dropdown_good_image.value = 'Yes'
             else:
@@ -632,9 +667,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         except DestWellProperties.DoesNotExist:
             print('No properties found for dest well:', dest)
             dropdown_total_somites.value = 'Select a value'
-            dropdown_bad_somites.value  = 'Select a value'
+            dropdown_bad_somites_cat1.value  = 'Select a value'
+            dropdown_bad_somites_cat2.value  = 'Select a value'
+            dropdown_bad_somites_cat3.value  = 'Select a value'
             dropdown_total_somites_err.value = '0'
-            dropdown_bad_somites_err.value  = '0'
             dropdown_good_image.value = 'Yes'
             dropdown_good_orientation.value = 'Not set'
             images_comments.value = ''
@@ -816,9 +852,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
 
     dropdown_total_somites     = bokeh.models.Select(value='Select a value', title='# total somites', options=['Select a value', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35'])
-    dropdown_bad_somites       = bokeh.models.Select(value='Select a value', title='# bad somites',  options=['Select a value','0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'])
+    dropdown_bad_somites_cat1  = bokeh.models.Select(value='Select a value', title='# bad somites cat1',  options=['Select a value','0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+    dropdown_bad_somites_cat2  = bokeh.models.Select(value='Select a value', title='# bad somites cat2',  options=['Select a value','0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+    dropdown_bad_somites_cat3  = bokeh.models.Select(value='Select a value', title='# bad somites cat3',  options=['Select a value','0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
     dropdown_total_somites_err = bokeh.models.Select(value='0', title='# total somites error', options=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
-    dropdown_bad_somites_err   = bokeh.models.Select(value='0', title='# bad somites error',  options=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
     dropdown_good_image        = bokeh.models.Select(value='Yes', title='Good image', options=['Yes', 'No'])
     dropdown_good_orientation  = bokeh.models.Select(value='Not set', title='Good orientation', options=['Not set', 'Yes', 'No'])
     images_comments            = bokeh.models.widgets.TextAreaInput(title="Comments if any:", value='', rows=7, width=200, css_classes=["font-size:18px"])
@@ -851,8 +888,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             return
 
 
-        if dropdown_total_somites.value == 'Select a value' or dropdown_bad_somites.value == 'Select a value':
-            print('Please select at least one of # total somites or # bad somites')
+        if dropdown_total_somites.value == 'Select a value' or dropdown_bad_somites_cat1.value == 'Select a value' or dropdown_bad_somites_cat2.value == 'Select a value' or dropdown_bad_somites_cat3.value == 'Select a value':
+            print('Please select values for # total somites or # bad somites cat1/2/3')
             image_message.text = "<b style='color:red; font-size:18px;'>Please select at least one of # total somites or # bad somites</b>"
             image_message.visible = True
             saveimages_button.label = "Save"
@@ -873,9 +910,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         #dest_well_properties = DestWellProperties(dest_well=dest)
         dest_well_properties, created = DestWellProperties.objects.get_or_create(dest_well=dest)
         dest_well_properties.n_total_somites = int(dropdown_total_somites.value) if dropdown_total_somites.value != 'Select a value' else None
-        dest_well_properties.n_bad_somites  = int(dropdown_bad_somites.value)  if dropdown_bad_somites.value != 'Select a value' else None
+        dest_well_properties.n_bad_somites_cat1 = int(dropdown_bad_somites_cat1.value) if dropdown_bad_somites_cat1.value != 'Select a value' else None
+        dest_well_properties.n_bad_somites_cat2 = int(dropdown_bad_somites_cat2.value) if dropdown_bad_somites_cat2.value != 'Select a value' else None
+        dest_well_properties.n_bad_somites_cat3 = int(dropdown_bad_somites_cat3.value) if dropdown_bad_somites_cat3.value != 'Select a value' else None
         dest_well_properties.n_total_somites_err = int(dropdown_total_somites_err.value)
-        dest_well_properties.n_bad_somites_err  = int(dropdown_bad_somites_err.value)
         dest_well_properties.valid = True if dropdown_good_image.value == 'Yes' else False
         if dropdown_good_orientation.value == 'Not set':
             pass
@@ -1051,9 +1089,9 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
                             data = {
                                 'n_total_somites': props.n_total_somites,
-                                'n_bad_somites': props.n_bad_somites,
-                                'n_total_somites_err': props.n_total_somites_err,
-                                'n_bad_somites_err': props.n_bad_somites_err,
+                                'n_bad_somites_cat1': props.n_bad_somites_cat1,
+                                'n_bad_somites_cat2': props.n_bad_somites_cat2,
+                                'n_bad_somites_cat3': props.n_bad_somites_cat3,
                                 'valid': props.valid,
                                 'correct_orientation': props.correct_orientation,
                                 'comments': props.comments,
@@ -1090,12 +1128,12 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     data_img_bf   = {'img':[]}
     source_img_bf = bokeh.models.ColumnDataSource(data=data_img_bf)
-    plot_img_bf   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="box_select,wheel_zoom,box_zoom,reset,undo",width=550, height=550)
+    plot_img_bf   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="pan,box_select,wheel_zoom,box_zoom,reset,undo",width=550, height=550)
     plot_img_bf.image(image='img', x=0, y=0, dw=im_size, dh=im_size, source=source_img_bf, color_mapper=color_mapper)
 
     data_img_yfp   = {'img':[]}
     source_img_yfp = bokeh.models.ColumnDataSource(data=data_img_yfp)
-    plot_img_yfp   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="box_select,wheel_zoom,box_zoom,reset,undo",width=550, height=550)
+    plot_img_yfp   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="pan,box_select,wheel_zoom,box_zoom,reset,undo",width=550, height=550)
     plot_img_yfp.image(image='img', x=0, y=0, dw=im_size, dh=im_size, source=source_img_yfp, color_mapper=color_mapper)
 
     data_img_vast   = {'img':[]}
@@ -1114,7 +1152,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     norm_layout = bokeh.layouts.column(bokeh.layouts.row(indent,bokeh.layouts.column(dropdown_exp, well_mapping_button, create_training_button), bokeh.models.Spacer(width=20),    bokeh.layouts.column(image_message,drug_message)),
                                        bokeh.layouts.Spacer(width=50),
                                        bokeh.layouts.row(indent,  bokeh.layouts.column(plot_wellplate_dest, plot_wellplate_dest_2),
-                                                         bokeh.layouts.column(bokeh.layouts.row(bokeh.layouts.Spacer(width=10), bokeh.layouts.column(contrast_slider,predict_button, use_corrected_checkbox), dropdown_total_somites, dropdown_total_somites_err, dropdown_bad_somites, dropdown_bad_somites_err, dropdown_good_image, dropdown_good_orientation, saveimages_button,images_comments),
+                                                         bokeh.layouts.column(bokeh.layouts.row(bokeh.layouts.Spacer(width=10), bokeh.layouts.column(contrast_slider,predict_button, use_corrected_checkbox), bokeh.layouts.column(bokeh.layouts.row(dropdown_total_somites, dropdown_total_somites_err,dropdown_good_image), bokeh.layouts.row(dropdown_bad_somites_cat1, dropdown_bad_somites_cat2, dropdown_bad_somites_cat3, dropdown_good_orientation),bokeh.layouts.column(saveimages_button ,images_comments)),
                                                                               bokeh.layouts.row(prediction_message),
                                                                               bokeh.layouts.row(plot_img_bf, bokeh.layouts.Spacer(width=10),plot_img_yfp),
                                                                               bokeh.layouts.row(plot_img_vast))))
