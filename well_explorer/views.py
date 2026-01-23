@@ -479,7 +479,12 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         image_yfp = imread(file_YFP)
         source_img_yfp.data = {'img':[np.flip(image_yfp,0)]}
         # Crop the YFP image around the fish
-        cropped_yfp = image_yfp[768:1280, :]
+
+        y1=10/32 * 2048
+        y2=2048-2*y1
+
+
+        cropped_yfp = image_yfp[y1:y1+y2, :]
         source_img_yfp_cropped.data = {'img':[np.flip(cropped_yfp,0)]}
         path_vast = os.path.join(LOCALPATH, dropdown_exp.value,'VAST images', 'Plate 1', 'Well_{}{}'.format(position[0][1], position[0][0]))
         if int(position[0][0]) < 10:
@@ -1202,7 +1207,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     data_img_yfp_cropped   = {'img':[]}
     source_img_yfp_cropped = bokeh.models.ColumnDataSource(data=data_img_yfp_cropped)
-    plot_img_yfp_cropped   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="pan,box_select,wheel_zoom,box_zoom,reset,undo",width=1100, height=275)
+    plot_img_yfp_cropped   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="pan,box_select,wheel_zoom,box_zoom,reset,undo",width=1100, height=344)
     plot_img_yfp_cropped.image(image='img', x=0, y=0, dw=im_size, dh=im_size, source=source_img_yfp_cropped, color_mapper=color_mapper)
 
     data_img_vast   = {'img':[]}
