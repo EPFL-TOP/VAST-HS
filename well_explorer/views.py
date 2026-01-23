@@ -1213,7 +1213,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                                                                                                      bokeh.layouts.row(dropdown_bad_somites_cat1, dropdown_bad_somites_cat2, dropdown_bad_somites_cat3)),
                                                                                                 bokeh.layouts.column(saveimages_button ,images_comments)),
                                                                               bokeh.layouts.row(prediction_message),
-                                                                              bokeh.layouts.row(plot_img_bf, bokeh.layouts.Spacer(width=10),plot_img_yfp),
+                                                                              bokeh.layouts.row(plot_img_yfp, bokeh.layouts.Spacer(width=10),plot_img_bf,),
                                                                               bokeh.layouts.row(plot_img_vast))))
 
     plot_img_bf.axis.visible   = False
