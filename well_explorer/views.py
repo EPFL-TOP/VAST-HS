@@ -251,6 +251,57 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             x_labels.append(xi)
             y_labels.append(yi)
 
+    zoom_in_wells = bokeh.models.Button(label="Zoom in wells")
+    zoom_out_wells = bokeh.models.Button(label="Zoom out wells")
+
+    zoom_in_fish = bokeh.models.Button(label="Zoom in fish")
+    zoom_out_fish = bokeh.models.Button(label="Zoom out fish")
+
+    #___________________________________________________________________________________________
+    def zoom_size(factor, cds):
+
+        if len(cds.data['size'])>0:
+            new_size = int(cds.data['size'][0] * factor)
+            data = dict(cds.data)
+            data["size"] = [new_size] * len(data["x"])
+            cds.data = data
+
+
+    #___________________________________________________________________________________________
+    def make_zoom_cb_wells(factor):
+        def zoom_cb():
+            plot_wellplate_dest.width  = int(plot_wellplate_dest.width * factor)
+            plot_wellplate_dest.height = int(plot_wellplate_dest.height * factor)
+            plot_wellplate_dest_2.width  = int(plot_wellplate_dest_2.width * factor)
+            plot_wellplate_dest_2.height = int(plot_wellplate_dest_2.height * factor)
+            zoom_size(factor, cds_labels_dest)
+            zoom_size(factor, cds_labels_dest_2)
+            zoom_size(factor, cds_labels_dest_present)
+            zoom_size(factor, cds_labels_dest_2_present)
+            zoom_size(factor, cds_labels_dest_filled)
+            zoom_size(factor, cds_labels_dest_2_filled)
+            zoom_size(factor, cds_labels_dest_filled_bad)
+            zoom_size(factor, cds_labels_dest_2_filled_bad)
+        return zoom_cb
+
+
+    #___________________________________________________________________________________________
+    def make_zoom_cb_fish(factor):
+        def zoom_cb():
+            plot_img_bf.width  = int(plot_img_bf.width * factor)
+            plot_img_bf.height = int(plot_img_bf.height * factor)
+            plot_img_yfp.width  = int(plot_img_yfp.width * factor)
+            plot_img_yfp.height = int(plot_img_yfp.height * factor)
+            plot_img_vast.width  = int(plot_img_vast.width * factor)
+            plot_img_vast.height = int(plot_img_vast.height * factor)
+
+        return zoom_cb
+
+    zoom_in_wells.on_click(make_zoom_cb_wells(1.2))
+    zoom_out_wells.on_click(make_zoom_cb_wells(0.8))
+
+    zoom_in_fish.on_click(make_zoom_cb_fish(1.2))
+    zoom_out_fish.on_click(make_zoom_cb_fish(0.8))
 
 
     #___________________________________________________________________________________________
@@ -1149,7 +1200,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     indent = bokeh.models.Spacer(width=30)
 
-    norm_layout = bokeh.layouts.column(bokeh.layouts.row(indent,bokeh.layouts.column(dropdown_exp, well_mapping_button, create_training_button), bokeh.models.Spacer(width=20),    bokeh.layouts.column(image_message,drug_message)),
+    norm_layout = bokeh.layouts.column(bokeh.layouts.row(indent,bokeh.layouts.column(dropdown_exp, well_mapping_button, create_training_button), 
+                                                         bokeh.models.Spacer(width=20), 
+                                                         bokeh.layouts.column(zoom_in_wells,zoom_out_wells), 
+                                                         bokeh.layouts.column(zoom_in_fish,zoom_out_fish), 
+                                                         bokeh.layouts.column(image_message,drug_message)),
                                        bokeh.layouts.Spacer(width=50),
                                        bokeh.layouts.row(indent,  bokeh.layouts.column(plot_wellplate_dest, plot_wellplate_dest_2),
                                                          bokeh.layouts.column(bokeh.layouts.row(bokeh.layouts.Spacer(width=10), 
