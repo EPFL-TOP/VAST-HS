@@ -24,6 +24,9 @@ import bokeh.plotting
 import bokeh.embed
 import bokeh.layouts
 
+global NCROP
+NCROP=0
+
 from well_mapping.models import Experiment, SourceWellPlate, DestWellPlate, SourceWellPosition, DestWellPosition, Drug, DestWellProperties
 
 from somiteCounting.training import SomiteCounter_freeze, FishQualityClassifier
@@ -480,11 +483,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         source_img_yfp.data = {'img':[np.flip(image_yfp,0)]}
         # Crop the YFP image around the fish
 
-        y1=int(10/32 * 2048)
-        y2=int(2048-2*y1)
 
-
-        cropped_yfp = image_yfp[y1:y1+y2, :]
+        cropped_yfp = image[768:1280, :]
         source_img_yfp_cropped.data = {'img':[np.flip(cropped_yfp,0)]}
         path_vast = os.path.join(LOCALPATH, dropdown_exp.value,'VAST images', 'Plate 1', 'Well_{}{}'.format(position[0][1], position[0][0]))
         if int(position[0][0]) < 10:
@@ -748,6 +748,31 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     use_corrected_checkbox.on_change("active", lambda attr, old, new: dest_plate_2_visu(attr, old, new))
 
 
+    #___________________________________________________________________________________________
+    def move_crop_up():
+        global NCROP
+        data = source_img_yfp.data['img']
+
+        NCROP += 10
+        # Crop the YFP image around the fish
+        cropped_yfp = data[768-NCROP:1280-NCROP, :]
+        source_img_yfp_cropped.data = {'img':[cropped_yfp]}
+
+    move_crop_up_button = bokeh.models.Button(label="move crop up")
+    move_crop_up_button.on_click(move_crop_up)
+
+    #___________________________________________________________________________________________
+    def move_crop_down():
+        global NCROP
+        data = source_img_yfp.data['img']
+
+        NCROP -= 10
+        # Crop the YFP image around the fish
+        cropped_yfp = data[768-NCROP:1280-NCROP, :]
+        source_img_yfp_cropped.data = {'img':[cropped_yfp]}
+
+    move_crop_down_button = bokeh.models.Button(label="move crop down")
+    move_crop_down_button.on_click(move_crop_down)
 
     #___________________________________________________________________________________________
     def load_experiment(attr, old, new):
@@ -1207,7 +1232,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     data_img_yfp_cropped   = {'img':[]}
     source_img_yfp_cropped = bokeh.models.ColumnDataSource(data=data_img_yfp_cropped)
-    plot_img_yfp_cropped   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="pan,box_select,wheel_zoom,box_zoom,reset,undo",width=1100, height=344)
+    plot_img_yfp_cropped   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="pan,box_select,wheel_zoom,box_zoom,reset,undo",width=1100, height=275)
     plot_img_yfp_cropped.image(image='img', x=0, y=0, dw=im_size, dh=im_size, source=source_img_yfp_cropped, color_mapper=color_mapper)
 
     data_img_vast   = {'img':[]}
@@ -1225,8 +1250,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     norm_layout = bokeh.layouts.column(bokeh.layouts.row(indent,bokeh.layouts.column(dropdown_exp, well_mapping_button, create_training_button), 
                                                          bokeh.models.Spacer(width=20), 
-                                                         bokeh.layouts.column(zoom_in_wells,zoom_out_wells), 
-                                                         bokeh.layouts.column(zoom_in_fish,zoom_out_fish), 
+                                                         bokeh.layouts.column(zoom_in_wells,zoom_out_wells, move_crop_up), 
+                                                         bokeh.layouts.column(zoom_in_fish,zoom_out_fish, move_crop_down)), 
                                                          bokeh.layouts.column(image_message,drug_message)),
                                        bokeh.layouts.Spacer(width=50),
                                        bokeh.layouts.row(indent,  bokeh.layouts.column(plot_wellplate_dest, plot_wellplate_dest_2),
