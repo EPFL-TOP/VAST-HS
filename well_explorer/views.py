@@ -480,8 +480,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         source_img_yfp.data = {'img':[np.flip(image_yfp,0)]}
         # Crop the YFP image around the fish
 
-        y1=10/32 * 2048
-        y2=2048-2*y1
+        y1=int(10/32 * 2048)
+        y2=int(2048-2*y1)
 
 
         cropped_yfp = image_yfp[y1:y1+y2, :]
