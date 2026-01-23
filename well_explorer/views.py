@@ -754,8 +754,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         data = source_img_yfp.data['img']
 
         NCROP += 10
+        y1=int(768-NCROP)
+        y2=int(1280-NCROP)
         # Crop the YFP image around the fish
-        cropped_yfp = data[768-NCROP:1280-NCROP, :]
+        cropped_yfp = data[y1:y2, :]
         source_img_yfp_cropped.data = {'img':[cropped_yfp]}
 
     move_crop_up_button = bokeh.models.Button(label="move crop up")
@@ -767,8 +769,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         data = source_img_yfp.data['img']
 
         NCROP -= 10
+        y1=int(768-NCROP)
+        y2=int(1280-NCROP)
         # Crop the YFP image around the fish
-        cropped_yfp = data[768-NCROP:1280-NCROP, :]
+        cropped_yfp = data[y1:y2, :]
         source_img_yfp_cropped.data = {'img':[cropped_yfp]}
 
     move_crop_down_button = bokeh.models.Button(label="move crop down")
