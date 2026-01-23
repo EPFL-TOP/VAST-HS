@@ -292,6 +292,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             plot_img_bf.height = int(plot_img_bf.height * factor)
             plot_img_yfp.width  = int(plot_img_yfp.width * factor)
             plot_img_yfp.height = int(plot_img_yfp.height * factor)
+            plot_img_yfp_cropped.width  = int(plot_img_yfp_cropped.width * factor)
+            plot_img_yfp_cropped.height = int(plot_img_yfp_cropped.height * factor)
             plot_img_vast.width  = int(plot_img_vast.width * factor)
             plot_img_vast.height = int(plot_img_vast.height * factor)
 
@@ -419,6 +421,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             if len(cds_labels_dest_2.selected.indices) == 0:
                 source_img_bf.data  = {'img':[]}
                 source_img_yfp.data = {'img':[]}
+                source_img_yfp_cropped.data = {'img':[]}
                 source_img_vast.data = {'img':[]}
             return
         cds_labels_dest_2_present.selected.indices = []
@@ -450,6 +453,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             print('No files found in path:', path_leica)
             source_img_bf.data  = {'img':[]}
             source_img_yfp.data = {'img':[]}
+            source_img_yfp_cropped.data = {'img':[]}
             source_img_vast.data = {'img':[]}
             drug_message.text = ""
             drug_message.visible = False
@@ -474,7 +478,9 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         image_yfp = imread(file_YFP)
         source_img_yfp.data = {'img':[np.flip(image_yfp,0)]}
-
+        # Crop the YFP image around the fish
+        cropped_yfp = image_yfp[768:1280, :]
+        source_img_yfp_cropped.data = {'img':[np.flip(cropped_yfp,0)]}
         path_vast = os.path.join(LOCALPATH, dropdown_exp.value,'VAST images', 'Plate 1', 'Well_{}{}'.format(position[0][1], position[0][0]))
         if int(position[0][0]) < 10:
             path_vast = os.path.join(LOCALPATH, dropdown_exp.value,'VAST images', 'Plate 1', 'Well_{}0{}'.format(position[0][1], position[0][0]))  
@@ -583,6 +589,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             if len(cds_labels_dest.selected.indices) == 0:
                 source_img_bf.data  = {'img':[]}
                 source_img_yfp.data = {'img':[]}
+                source_img_yfp_cropped.data = {'img':[]}
                 source_img_vast.data = {'img':[]}
             return
         cds_labels_dest_present.selected.indices = []
@@ -615,6 +622,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             print('No files found in path:', path_leica)
             source_img_bf.data  = {'img':[]}
             source_img_yfp.data = {'img':[]}
+            source_img_yfp_cropped.data = {'img':[]}
             source_img_vast.data = {'img':[]}
             drug_message.text = ""
             drug_message.visible = False
@@ -630,6 +638,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         image_yfp = imread(file_YFP)
         source_img_yfp.data = {'img':[np.flip(image_yfp,0)]}
+
+        # Crop the YFP image around the fish
+        cropped_yfp = image_yfp[768:1280, :]
+        source_img_yfp_cropped.data = {'img':[np.flip(cropped_yfp,0)]}
 
         path_vast = os.path.join(LOCALPATH, dropdown_exp.value,'VAST images', 'Plate 2', 'Well_{}{}'.format(position[0][1], position[0][0]))
         if int(position[0][0]) < 10:
@@ -752,21 +764,21 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 plot_wellplate_dest.x_range.factors = x_96
                 plot_wellplate_dest.y_range.factors = y_96
                 plot_wellplate_dest.title.text = "96 well plate"
-                cds_labels_dest.data = dict(source_labels_96.data, size=[50]*len(source_labels_96.data['x']))
+                cds_labels_dest.data = dict(source_labels_96.data, size=[50]*len(source_labels_96.data['x']) if cds_labels_dest.data['size']==[] else cds_labels_dest.data['size'])
                 plot_wellplate_dest.axis.visible = True
 
             elif dest_well_plate.plate_type == '48':
                 plot_wellplate_dest.x_range.factors = x_48
                 plot_wellplate_dest.y_range.factors = y_48
                 plot_wellplate_dest.title.text = "48 well plate"
-                cds_labels_dest.data = dict(source_labels_48.data, size=[65]*len(source_labels_48.data['x']))
+                cds_labels_dest.data = dict(source_labels_48.data, size=[65]*len(source_labels_48.data['x']) if cds_labels_dest.data['size']==[] else cds_labels_dest.data['size'])
                 plot_wellplate_dest.axis.visible = True
 
             elif dest_well_plate.plate_type == '24':
                 plot_wellplate_dest.x_range.factors = x_24
                 plot_wellplate_dest.y_range.factors = y_24
                 plot_wellplate_dest.title.text = "24 well plate"
-                cds_labels_dest.data = dict(source_labels_24.data, size=[80]*len(source_labels_24.data['x']))
+                cds_labels_dest.data = dict(source_labels_24.data, size=[80]*len(source_labels_24.data['x']) if cds_labels_dest.data['size']==[] else cds_labels_dest.data['size'])
                 plot_wellplate_dest.axis.visible = True
 
         if n_plates==2:
@@ -775,21 +787,21 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 plot_wellplate_dest_2.x_range.factors = x_96
                 plot_wellplate_dest_2.y_range.factors = y_96
                 plot_wellplate_dest_2.title.text = "96 well plate"
-                cds_labels_dest_2.data = dict(source_labels_96.data, size=[50]*len(source_labels_96.data['x']))
+                cds_labels_dest_2.data = dict(source_labels_96.data, size=[50]*len(source_labels_96.data['x']) if cds_labels_dest_2.data['size']==[] else cds_labels_dest_2.data['size'])
                 plot_wellplate_dest_2.axis.visible = True
 
             elif dest_well_plate_2.plate_type == '48':
                 plot_wellplate_dest_2.x_range.factors = x_48
                 plot_wellplate_dest_2.y_range.factors = y_48
                 plot_wellplate_dest_2.title.text = "48 well plate"
-                cds_labels_dest_2.data = dict(source_labels_48.data, size=[65]*len(source_labels_48.data['x']))
+                cds_labels_dest_2.data = dict(source_labels_48.data, size=[65]*len(source_labels_48.data['x']) if cds_labels_dest_2.data['size']==[] else cds_labels_dest_2.data['size'])
                 plot_wellplate_dest_2.axis.visible = True
 
             elif dest_well_plate_2.plate_type == '24':
                 plot_wellplate_dest_2.x_range.factors = x_24
                 plot_wellplate_dest_2.y_range.factors = y_24
                 plot_wellplate_dest_2.title.text = "24 well plate"
-                cds_labels_dest_2.data = dict(source_labels_24.data, size=[80]*len(source_labels_24.data['x']))
+                cds_labels_dest_2.data = dict(source_labels_24.data, size=[80]*len(source_labels_24.data['x']) if cds_labels_dest_2.data['size']==[] else cds_labels_dest_2.data['size'])
                 plot_wellplate_dest_2.axis.visible = True
 
         LOCALPATH = LOCALPATH_HIVE
@@ -858,6 +870,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         source_img_bf.data  = {'img':[]}
         source_img_yfp.data = {'img':[]}
+        source_img_yfp_cropped.data = {'img':[]}
         source_img_vast.data = {'img':[]}
 
     dropdown_exp.on_change("value", load_experiment)
@@ -1187,6 +1200,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     plot_img_yfp   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="pan,box_select,wheel_zoom,box_zoom,reset,undo",width=550, height=550)
     plot_img_yfp.image(image='img', x=0, y=0, dw=im_size, dh=im_size, source=source_img_yfp, color_mapper=color_mapper)
 
+    data_img_yfp_cropped   = {'img':[]}
+    source_img_yfp_cropped = bokeh.models.ColumnDataSource(data=data_img_yfp_cropped)
+    plot_img_yfp_cropped   = bokeh.plotting.figure(x_range=x_range, y_range=y_range, tools="pan,box_select,wheel_zoom,box_zoom,reset,undo",width=1100, height=275)
+    plot_img_yfp_cropped.image(image='img', x=0, y=0, dw=im_size, dh=im_size, source=source_img_yfp_cropped, color_mapper=color_mapper)
+
     data_img_vast   = {'img':[]}
     source_img_vast = bokeh.models.ColumnDataSource(data=data_img_vast)
     x_range_2 = bokeh.models.Range1d(start=0, end=1024)
@@ -1213,6 +1231,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                                                                                                      bokeh.layouts.row(dropdown_bad_somites_cat1, dropdown_bad_somites_cat2, dropdown_bad_somites_cat3)),
                                                                                                 bokeh.layouts.column(saveimages_button ,images_comments)),
                                                                               bokeh.layouts.row(prediction_message),
+                                                                                bokeh.layouts.row(plot_img_yfp_cropped),
                                                                               bokeh.layouts.row(plot_img_yfp, bokeh.layouts.Spacer(width=10),plot_img_bf,),
                                                                               bokeh.layouts.row(plot_img_vast))))
 
@@ -1220,6 +1239,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     plot_img_bf.grid.visible   = False
     plot_img_yfp.axis.visible  = False
     plot_img_yfp.grid.visible  = False
+    plot_img_yfp_cropped.axis.visible = False
+    plot_img_yfp_cropped.grid.visible = False
     plot_img_vast.axis.visible = False
     plot_img_vast.grid.visible = False
 
