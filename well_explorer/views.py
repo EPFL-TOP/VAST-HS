@@ -1250,8 +1250,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     norm_layout = bokeh.layouts.column(bokeh.layouts.row(indent,bokeh.layouts.column(dropdown_exp, well_mapping_button, create_training_button), 
                                                          bokeh.models.Spacer(width=20), 
-                                                         bokeh.layouts.column(zoom_in_wells,zoom_out_wells, move_crop_up), 
-                                                         bokeh.layouts.column(zoom_in_fish,zoom_out_fish, move_crop_down)), 
+                                                         bokeh.layouts.column(zoom_in_wells,zoom_out_wells, move_crop_up_button), 
+                                                         bokeh.layouts.column(zoom_in_fish,zoom_out_fish, move_crop_down_button), 
                                                          bokeh.layouts.column(image_message,drug_message)),
                                        bokeh.layouts.Spacer(width=50),
                                        bokeh.layouts.row(indent,  bokeh.layouts.column(plot_wellplate_dest, plot_wellplate_dest_2),
