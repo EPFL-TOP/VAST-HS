@@ -752,6 +752,9 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     def move_crop_up():
         global NCROP
         data = source_img_yfp.data['img']
+        if len(data) == 0:
+            return
+        data = data[0]
 
         NCROP += 10
         y1=int(768-NCROP)
@@ -767,7 +770,9 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     def move_crop_down():
         global NCROP
         data = source_img_yfp.data['img']
-
+        if len(data) == 0:
+            return
+        data = data[0]
         NCROP -= 10
         y1=int(768-NCROP)
         y2=int(1280-NCROP)
