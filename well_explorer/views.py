@@ -483,8 +483,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         source_img_yfp.data = {'img':[np.flip(image_yfp,0)]}
         # Crop the YFP image around the fish
 
-
-        cropped_yfp = image_yfp[768:1280, :]
+        global NCROP
+        cropped_yfp = image_yfp[768-NCROP:1280-NCROP, :]
         source_img_yfp_cropped.data = {'img':[np.flip(cropped_yfp,0)]}
         path_vast = os.path.join(LOCALPATH, dropdown_exp.value,'VAST images', 'Plate 1', 'Well_{}{}'.format(position[0][1], position[0][0]))
         if int(position[0][0]) < 10:
@@ -645,7 +645,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         source_img_yfp.data = {'img':[np.flip(image_yfp,0)]}
 
         # Crop the YFP image around the fish
-        cropped_yfp = image_yfp[768:1280, :]
+        global NCROP
+        cropped_yfp = image_yfp[768-NCROP:1280-NCROP, :]
         source_img_yfp_cropped.data = {'img':[np.flip(cropped_yfp,0)]}
 
         path_vast = os.path.join(LOCALPATH, dropdown_exp.value,'VAST images', 'Plate 2', 'Well_{}{}'.format(position[0][1], position[0][0]))
