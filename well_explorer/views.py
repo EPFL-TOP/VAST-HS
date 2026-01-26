@@ -142,13 +142,15 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     image_message    = bokeh.models.Div(visible=False)
     prediction_message    = bokeh.models.Div(visible=False)
 
-    plot_wellplate_dest   = bokeh.plotting.figure(x_range=bokeh.models.FactorRange(*x_96), y_range=bokeh.models.FactorRange(*y_96), title='',width=900, height=600, tools="box_select,box_zoom,reset,undo")
+    plot_wellplate_dest   = bokeh.plotting.figure(x_range=bokeh.models.FactorRange(*x_96), y_range=bokeh.models.FactorRange(*y_96), title='',
+                                                  width=900, height=600, tools="box_select,box_zoom,reset,undo")
     plot_wellplate_dest.xaxis.major_label_text_font_size = "15pt"
     plot_wellplate_dest.yaxis.major_label_text_font_size = "15pt"
     plot_wellplate_dest.grid.visible = False
     plot_wellplate_dest.axis.visible = False
 
-    plot_wellplate_dest_2   = bokeh.plotting.figure(x_range=bokeh.models.FactorRange(*x_96), y_range=bokeh.models.FactorRange(*y_96), title='',width=900, height=600, tools="box_select,box_zoom,reset,undo")
+    plot_wellplate_dest_2   = bokeh.plotting.figure(x_range=bokeh.models.FactorRange(*x_96), y_range=bokeh.models.FactorRange(*y_96), title='',
+                                                    width=900, height=600, tools="box_select,box_zoom,reset,undo")
     plot_wellplate_dest_2.xaxis.major_label_text_font_size = "15pt"
     plot_wellplate_dest_2.yaxis.major_label_text_font_size = "15pt"
     plot_wellplate_dest_2.grid.visible = False
@@ -310,7 +312,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     zoom_out_wells.on_click(make_zoom_cb_wells(1./1.2))
 
     zoom_in_fish.on_click(make_zoom_cb_fish(1.2))
-    zoom_out_fish.on_click(make_zoom_cb_fish(0.8))
+    zoom_out_fish.on_click(make_zoom_cb_fish(1./1.2))
 
 
     #___________________________________________________________________________________________
