@@ -837,6 +837,47 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     dropdown_n_dest_wellplates.on_change("value", load_well_plate_dest_2)
 
 
+    #___________________________________________________________________________________________
+    def add_heatshock_to_well(heatshock):
+        print('------------------->>>>>>>>> add_heatshock_to_well')
+
+        experiement   = Experiment.objects.filter(name=dropdown_exp.value).first()
+        if not experiement:
+            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Select a valid experiment.</b>"
+            hs_message.visible = True
+            add_hs_button.label = "Add heatshock"
+            add_hs_button.button_type = "success"
+            return
+
+        plate = experiement.source_plate
+
+        positions = get_well_mapping(cds_labels_source.selected.indices)
+        positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
+        print('add heatshock to well positions=', positions)
+        print('add heatshock to well positions supp=', positions_supp)
+
+        wells=[]
+        for pos in positions:
+            print('pos=', pos)
+            try:
+                source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=False)
+                print('source_well_pos=', source_well_pos)
+                heatshock.position.add(source_well_pos)
+                wells.append(f"{pos[1]}{pos[0]}")
+            except SourceWellPosition.DoesNotExist:
+                print(f"Source well position {pos} does not exist in the source well plate.")
+
+        for pos in positions_supp:
+            print('pos supp=', pos)
+            try:
+                source_well_pos_supp = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
+                print('source_well_pos_supp=', source_well_pos_supp)
+                heatshock.position.add(source_well_pos_supp) 
+                wells.append(f"{pos[1]}{pos[0]}")
+
+            except SourceWellPosition.DoesNotExist:
+                print(f"Source Supp well position {pos} does not exist in the source well plate.")
+        return wells
 
     #___________________________________________________________________________________________
     def add_drug_to_well(drug):
@@ -1330,7 +1371,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                            duration=hs_duration.value,
                            fish_stage=hs_fish_stage.value)
             hs.save()
-            hs_message.text = f"<b style='color:green; ; font-size:18px;'> Added heat shock {hs_temperature.value}C for {hs_duration.value}min at fish stage {hs_fish_stage.value} to wells {pos} supp{pos_supp}.</b>"
+
+            wells =', '.join(add_heatshock_to_well(hs))
+
+            hs_message.text = f"<b style='color:green; ; font-size:18px;'> Added heat shock {hs_temperature.value}C for {hs_duration.value}min at fish stage {hs_fish_stage.value} to wells {wells}.</b>"
             hs_message.visible = True
             add_hs_button.label = "Add heat shock"
             add_hs_button.button_type = "success"
