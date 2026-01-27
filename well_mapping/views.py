@@ -1969,11 +1969,23 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     plot_wellplate_dest_2.add_tools(tap_tool)
     plot_wellplate_source_supp.add_tools(tap_tool)
 
+    hs_pre_incubation = bokeh.models.Select(title="Pre-incubation:", value="No", options=["Yes", "No"], width=150)
+    hs_temperature   = bokeh.models.TextInput(title="Temperature (°C):", value="37", width=150)
+    hs_duration      = bokeh.models.TextInput(title="Duration (minutes):", value="60", width=150)
+    hs_fish_stage    = bokeh.models.TextInput(title="Fish Stage:", value="24hpf", width=150)
+
+    hs_message = bokeh.models.Div(text='', width=600, height=50, visible=False)
+
+    add_hs_button = bokeh.models.Button(label="Add heat shock", button_type="success", width=150)
+    add_hs_other_wells_button = bokeh.models.Button(label="Add heat shock to other wells", button_type="success", width=200)
+    force_hs_drug_button = bokeh.models.Button(label="Force add heat shock", button_type="success", width=200)
+    remove_hs_button = bokeh.models.Button(label="Remove heat shock", button_type="warning", width=150)
 
     indent = bokeh.models.Spacer(width=30)
 
     text_layout = bokeh.layouts.column(bokeh.layouts.row(experiment_message),
                                        bokeh.layouts.row(drug_message),
+                                       bokeh.layouts.row(hs_message),
                                        bokeh.layouts.row(mapping_message),
                                        bokeh.layouts.row(pyrat_message),
                                        bokeh.layouts.row(wellvalid_message))
@@ -1990,10 +2002,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     drug_layout = bokeh.layouts.column(bokeh.layouts.row(zoom_in_wells_dest, zoom_out_wells_dest),
                                        bokeh.layouts.row(slimsid_name, drug_concentration),
                                        bokeh.layouts.row(add_drug_button, add_drug_other_wells_button, force_add_drug_button, remove_drug_button),
+                                       bokeh.layouts.row(hs_pre_incubation, hs_temperature, hs_duration, hs_fish_stage),
+                                       bokeh.layouts.row(add_hs_button,add_hs_other_wells_button, force_hs_drug_button, remove_hs_button),
                                        bokeh.layouts.row(wellcluster_comment,bokeh.layouts.column(valid_wellcluster,valid_wellcluster_button)),
                                        bokeh.layouts.row(map_drug_button, unmap_drug_button),)
 
-   
 
     norm_layout = bokeh.layouts.column(bokeh.layouts.row(indent,exp_layout, bokeh.layouts.Spacer(width=50), drug_layout, text_layout),
                                        bokeh.layouts.row(bokeh.layouts.Spacer(height=50)),
