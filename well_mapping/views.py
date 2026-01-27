@@ -1969,16 +1969,16 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     plot_wellplate_dest_2.add_tools(tap_tool)
     plot_wellplate_source_supp.add_tools(tap_tool)
 
-    hs_pre_incubation = bokeh.models.Select(title="Pre-incubation:", value="No", options=["Yes", "No"], width=150)
-    hs_temperature   = bokeh.models.TextInput(title="Temperature (°C):", value="37", width=150)
-    hs_duration      = bokeh.models.TextInput(title="Duration (minutes):", value="60", width=150)
-    hs_fish_stage    = bokeh.models.TextInput(title="Fish Stage:", value="24hpf", width=150)
+    hs_pre_incubation = bokeh.models.Select(title="Pre-incubation:", value="No", options=["Yes", "No"], width=110)
+    hs_temperature    = bokeh.models.TextInput(title="Temperature (°C):", value="", width=110)
+    hs_duration       = bokeh.models.TextInput(title="Duration (min):", value="", width=110)
+    hs_fish_stage     = bokeh.models.TextInput(title="Fish Stage:", value="", width=110)
 
     hs_message = bokeh.models.Div(text='', width=600, height=50, visible=False)
 
-    add_hs_button = bokeh.models.Button(label="Add heat shock", button_type="success", width=150)
-    add_hs_other_wells_button = bokeh.models.Button(label="Add heat shock to other wells", button_type="success", width=200)
-    force_hs_drug_button = bokeh.models.Button(label="Force add heat shock", button_type="success", width=200)
+    add_hs_button = bokeh.models.Button(label="Add heat shock", button_type="success", width=120)
+    add_hs_other_wells_button = bokeh.models.Button(label="Add heat shock to other wells", button_type="success", width=150)
+    force_hs_drug_button = bokeh.models.Button(label="Force add heat shock", button_type="success", width=150)
     remove_hs_button = bokeh.models.Button(label="Remove heat shock", button_type="warning", width=150)
 
     indent = bokeh.models.Spacer(width=30)
