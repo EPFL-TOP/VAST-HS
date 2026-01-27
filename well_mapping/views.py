@@ -186,7 +186,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     add_hs_button             = bokeh.models.Button(label="Add HS", button_type="success", width=110)
     add_hs_other_wells_button = bokeh.models.Button(label="Add HS to other wells", button_type="success", width=150)
     force_hs_drug_button      = bokeh.models.Button(label="Force add HS", button_type="success", width=150)
-    remove_hs_button          = bokeh.models.Button(label="Remove HS", button_type="warning", width=110)
+    remove_hs_button          = bokeh.models.Button(label="Remove HS", button_type="danger", width=110)
 
     lines_source = bokeh.models.ColumnDataSource(data=dict(x_start=[], y_start=[], x_end=[], y_end=[]))
     p_lines = bokeh.plotting.figure(width=1500, height=500, match_aspect=True, tools="", toolbar_location=None)
@@ -1034,19 +1034,24 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         drugs = Drug.objects.filter(position__in=source_well_positions)
         print("--------source_well_positions ",source_well_positions)
 
-        items_html = "".join(
-            f"<li style='color:navy; font-size:14px; "
-            f"margin-bottom:4px;'>{drug}</li>"
-            for drug in drugs)
+        if len(drugs) == 0:
+            drug_message.text = f"<b style='color:red; ; font-size:18px;'> No drug in selected well {well_position[0][1]}{well_position[0][0]}.</b>"
 
-        drug_message.text = f"""
-        <b style='color:green; font-size:18px;'>
-            Drug(s) in selected well {well_position[0][1]}{well_position[0][0]}:
-        </b>
-        <ul style='margin-top:0;'>
-            {items_html} <br> <b style='color:black; font-size:14px;'> comments={source_well_positions[0].comments}, valid well={source_well_positions[0].valid}</b>
-        </ul>
-        """
+
+        else:
+            items_html = "".join(
+                f"<li style='color:navy; font-size:14px; "
+                f"margin-bottom:4px;'>{drug}</li>"
+                for drug in drugs)
+
+            drug_message.text = f"""
+            <b style='color:green; font-size:18px;'>
+                Drug(s) in selected well {well_position[0][1]}{well_position[0][0]}:
+            </b>
+            <ul style='margin-top:0;'>
+                {items_html} <br> <b style='color:black; font-size:14px;'> comments={source_well_positions[0].comments}, valid well={source_well_positions[0].valid}</b>
+            </ul>
+            """
 
         drug_message.visible = True
         add_drug_button.label = "Add drug"
@@ -1139,20 +1144,23 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         source_well_positions = SourceWellPosition.objects.filter(well_plate=source_well_plate, is_supp=True, position_col=well_position[0][0], position_row=well_position[0][1])
         drugs = Drug.objects.filter(position__in=source_well_positions)
 
-        items_html = "".join(
-            f"<li style='color:navy; font-size:14px; "
-            f"margin-bottom:4px;'>{drug}</li>"
-            for drug in drugs
-        )
+        if len(drugs) == 0:
+            drug_message.text = f"<b style='color:red; ; font-size:18px;'> No drug in selected well {well_position[0][1]}{well_position[0][0]}.</b>"
+        else:
+            items_html = "".join(
+                f"<li style='color:navy; font-size:14px; "
+                f"margin-bottom:4px;'>{drug}</li>"
+                for drug in drugs
+            )
 
-        drug_message.text = f"""
-        <b style='color:green; font-size:18px;'>
-            Drug(s) in selected well {well_position[0][1]}{well_position[0][0]}:
-        </b>
-        <ul style='margin-top:0;'>
-            {items_html}
-        </ul>
-        """
+            drug_message.text = f"""
+            <b style='color:green; font-size:18px;'>
+                Drug(s) in selected well {well_position[0][1]}{well_position[0][0]}:
+            </b>
+            <ul style='margin-top:0;'>
+                {items_html}
+            </ul>
+            """
 
         #drug_message.text = f"<b style='color:green; ; font-size:18px;'> Drug(s) in selected well {well_position[1]}{well_position[0]}.</b>"
         drug_message.visible = True
