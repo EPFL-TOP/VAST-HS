@@ -41,7 +41,11 @@ api_url_crossings = base_url + 'tanks/crossings'
 api_url_strains   = base_url + 'strains'
 
 _programmatic_change = False
+global NZOOM_WELLS_SOURCE
+global NZOOM_WELLS_DEST
 
+NZOOM_WELLS_SOURCE = 1
+NZOOM_WELLS_DEST   = 1
 #___________________________________________________________________________________________
 def vast_handler(doc: bokeh.document.Document) -> None:
     print('****************************  vast_handler ****************************')
@@ -159,8 +163,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     add_drug_button = bokeh.models.Button(label="Add drug",  button_type="success")
     remove_drug_button = bokeh.models.Button(label="Remove drug",  button_type="danger")
-    map_drug_button = bokeh.models.Button(label="Map drug",  button_type="success")
-    unmap_drug_button = bokeh.models.Button(label="Unmap drug",  button_type="danger")
+    map_drug_button = bokeh.models.Button(label="Map well",  button_type="success")
+    unmap_drug_button = bokeh.models.Button(label="Unmap well",  button_type="danger")
     add_drug_other_wells_button = bokeh.models.Button(label="Add drug to other wells",  button_type="success")
     force_add_drug_button = bokeh.models.Button(label="Force add drug",  button_type="success")
     valid_wellcluster_button = bokeh.models.Button(label="Enter comment/Valid",  button_type="success")
@@ -193,7 +197,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                  nonselection_fill_color="white",
                                  nonselection_line_color="blue",)
     
-    plot_wellplate_source.circle('x', 'y', 
+    r_source=plot_wellplate_source.circle('x', 'y', 
                                  size='size',
                                  source=cds_labels_source_drug, 
                                  fill_alpha=0.5,line_width=3,
@@ -210,7 +214,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                     x_offset = 0, y_offset = 0,
                                     text_align = 'center',
                                     text_baseline = 'middle',
-                                    text_font_size = '14px',
+                                    text_font_size = '12px',
                                     text_color = 'navy'
     )
 
@@ -219,11 +223,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                     x_offset = 0, y_offset = 0,
                                     text_align = 'center',
                                     text_baseline = 'middle',
-                                    text_font_size = '14px',
+                                    text_font_size = '12px',
                                     text_color = 'navy'
     )
 
-    plot_wellplate_source.add_layout(labels)
+#    plot_wellplate_source.add_layout(labels)
+
+
 
     plot_wellplate_source_supp.circle('x', 'y', 
                                  size='size',
@@ -236,7 +242,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                  nonselection_fill_color="white",
                                  nonselection_line_color="blue",)
     
-    plot_wellplate_source_supp.circle('x', 'y', 
+    r_source_supp=plot_wellplate_source_supp.circle('x', 'y', 
                                  size='size',
                                  source=cds_labels_source_supp_drug, 
                                  fill_alpha=0.5,line_width=3,
@@ -248,7 +254,35 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                  nonselection_fill_color="black",
                                  nonselection_line_color="black",)
 
-    plot_wellplate_source_supp.add_layout(labels_supp)
+    #plot_wellplate_source_supp.add_layout(labels_supp)
+
+    hover_grid_source = bokeh.models.HoverTool(
+    renderers=[r_source, r_source_supp],
+
+    tooltips="""
+    <div style="font-size:14px;">
+        <div style="color:#2563eb; font-weight:bold; font-size:15px;">
+            Drugs
+        </div>
+        <div style="margin-left:5px; font-size:13px;">
+            @drug
+        </div>
+
+        <div style="margin-top:6px; color:#2563eb; font-weight:bold; font-size:15px;">
+            Position
+        </div>
+        <div style="margin-left:5px; font-size:13px;">
+            (@x, @y)
+        </div>
+    </div>
+
+    """
+    )
+
+    hover_grid_source.mode = 'mouse' 
+    hover_grid_source.point_policy = 'snap_to_data'
+    plot_wellplate_source.add_tools(hover_grid_source)
+    plot_wellplate_source_supp.add_tools(hover_grid_source)
 
     plot_wellplate_dest.circle('x', 'y', 
                                size='size', 
@@ -386,7 +420,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         plot_wellplate_source_supp.axis.visible = True
         plot_wellplate_source_supp.title.text = "Supplementary plate"
-        cds_labels_source_supp.data = dict(x=x_supp, y=y_supp, size=[50]*len(x_supp))
+        cds_labels_source_supp.data = dict(x=x_supp, y=y_supp, size=[50*NZOOM_WELLS_SOURCE]*len(x_supp))
         plot_wellplate_source_supp.x_range.factors = x_supp
         plot_wellplate_source_supp.y_range.factors = ['Z']
 
@@ -699,14 +733,14 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             plot_wellplate_source.x_range.factors = x_96
             plot_wellplate_source.y_range.factors = y_96
             plot_wellplate_source.title.text = "96 well plate"
-            cds_labels_source.data = dict(source_labels_96.data, size=[50]*len(source_labels_96.data['x']))
+            cds_labels_source.data = dict(source_labels_96.data, size=[50*NZOOM_WELLS_SOURCE]*len(source_labels_96.data['x']))
             plot_wellplate_source.axis.visible = True
 
         elif '48' in new:
             plot_wellplate_source.x_range.factors = x_48
             plot_wellplate_source.y_range.factors = y_48
             plot_wellplate_source.title.text = "48 well plate"
-            cds_labels_source.data = dict(source_labels_48.data, size=[65]*len(source_labels_48.data['x']))
+            cds_labels_source.data = dict(source_labels_48.data, size=[65*NZOOM_WELLS_SOURCE]*len(source_labels_48.data['x']))
             plot_wellplate_source.axis.visible = True
 
         elif '24' in new:
@@ -714,7 +748,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             plot_wellplate_source.x_range.factors = x_24
             plot_wellplate_source.y_range.factors = y_24
             plot_wellplate_source.title.text = "24 well plate"
-            cds_labels_source.data = dict(source_labels_24.data, size=[80]*len(source_labels_24.data['x']))
+            cds_labels_source.data = dict(source_labels_24.data, size=[80*NZOOM_WELLS_SOURCE]*len(source_labels_24.data['x']))
             plot_wellplate_source.axis.visible = True
 
         else:
@@ -731,21 +765,21 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             plot_wellplate_dest.x_range.factors = x_96
             plot_wellplate_dest.y_range.factors = y_96
             plot_wellplate_dest.title.text = "96 well plate"
-            cds_labels_dest.data = dict(source_labels_96.data, size=[50]*len(source_labels_96.data['x']))
+            cds_labels_dest.data = dict(source_labels_96.data, size=[50*NZOOM_WELLS_DEST]*len(source_labels_96.data['x']))
             plot_wellplate_dest.axis.visible = True
 
         elif '48' in new:
             plot_wellplate_dest.x_range.factors = x_48
             plot_wellplate_dest.y_range.factors = y_48
             plot_wellplate_dest.title.text = "48 well plate"
-            cds_labels_dest.data = dict(source_labels_48.data, size=[65]*len(source_labels_48.data['x']))
+            cds_labels_dest.data = dict(source_labels_48.data, size=[65*NZOOM_WELLS_DEST]*len(source_labels_48.data['x']))
             plot_wellplate_dest.axis.visible = True
 
         elif '24' in new:
             plot_wellplate_dest.x_range.factors = x_24
             plot_wellplate_dest.y_range.factors = y_24
             plot_wellplate_dest.title.text = "24 well plate"
-            cds_labels_dest.data = dict(source_labels_24.data, size=[80]*len(source_labels_24.data['x']))
+            cds_labels_dest.data = dict(source_labels_24.data, size=[80*NZOOM_WELLS_DEST]*len(source_labels_24.data['x']))
             plot_wellplate_dest.axis.visible = True
 
         else:
@@ -764,21 +798,21 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 plot_wellplate_dest_2.x_range.factors = x_96
                 plot_wellplate_dest_2.y_range.factors = y_96
                 plot_wellplate_dest_2.title.text = "96 well plate"
-                cds_labels_dest_2.data = dict(source_labels_96.data, size=[50]*len(source_labels_96.data['x']))
+                cds_labels_dest_2.data = dict(source_labels_96.data, size=[50*NZOOM_WELLS_DEST]*len(source_labels_96.data['x']))
                 plot_wellplate_dest_2.axis.visible = True
 
             elif '48' in dropdown_well_plate_dest.value:
                 plot_wellplate_dest_2.x_range.factors = x_48
                 plot_wellplate_dest_2.y_range.factors = y_48
                 plot_wellplate_dest_2.title.text = "48 well plate"
-                cds_labels_dest_2.data = dict(source_labels_48.data, size=[65]*len(source_labels_48.data['x']))
+                cds_labels_dest_2.data = dict(source_labels_48.data, size=[65*NZOOM_WELLS_DEST]*len(source_labels_48.data['x']))
                 plot_wellplate_dest_2.axis.visible = True
 
             elif '24' in dropdown_well_plate_dest.value:
                 plot_wellplate_dest_2.x_range.factors = x_24
                 plot_wellplate_dest_2.y_range.factors = y_24
                 plot_wellplate_dest_2.title.text = "24 well plate"
-                cds_labels_dest_2.data = dict(source_labels_24.data, size=[80]*len(source_labels_24.data['x']))
+                cds_labels_dest_2.data = dict(source_labels_24.data, size=[80*NZOOM_WELLS_DEST]*len(source_labels_24.data['x']))
                 plot_wellplate_dest_2.axis.visible = True
 
             else:
@@ -1547,35 +1581,35 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         if dropdown_well_plate_dest.value == 'Select a well plate':
             mapping_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Select a destination well plate.</b>"
             mapping_message.visible = True
-            map_drug_button.label = "Map drug"
+            map_drug_button.label = "Map well"
             map_drug_button.button_type = "success"
             return
         
         if cds_labels_source_supp.selected.indices == [] and cds_labels_source.selected.indices == []:
             mapping_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select a source well for the mapping.</b>"
             mapping_message.visible = True
-            map_drug_button.label = "Map drug"
+            map_drug_button.label = "Map well"
             map_drug_button.button_type = "success"
             return
 
         if len(cds_labels_source_supp.selected.indices)+len(cds_labels_source.selected.indices)>1:
             mapping_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not associate from 2 different source wells for the mapping.</b>"
             mapping_message.visible = True
-            map_drug_button.label = "Map drug"
+            map_drug_button.label = "Map well"
             map_drug_button.button_type = "success"
             return
 
         if cds_labels_dest.selected.indices == [] and cds_labels_dest_2.selected.indices == []:
             mapping_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select a destination well for the mapping.</b>"
             mapping_message.visible = True
-            map_drug_button.label = "Map drug"
+            map_drug_button.label = "Map well"
             map_drug_button.button_type = "success"
             return
 
         if cds_labels_dest.selected.indices != [] and cds_labels_dest_2.selected.indices != []:
             mapping_message.text = f"<b style='color:red; ; font-size:18px;'> Error: can not associate to two different destination well-plates for the mapping.</b>"
             mapping_message.visible = True
-            map_drug_button.label = "Map drug"
+            map_drug_button.label = "Map well"
             map_drug_button.button_type = "success"
             return
 
@@ -1614,7 +1648,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         if len(drugs) == 0:
             mapping_message.text = f"<b style='color:red; ; font-size:18px;'> Error: No drug in the selected source well.</b>"
             mapping_message.visible = True
-            map_drug_button.label = "Map drug"
+            map_drug_button.label = "Map well"
             map_drug_button.button_type = "success"
             return
 
@@ -1659,7 +1693,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             
             mapping_message.text = f"<b style='color:green; ; font-size:18px;'> Mapped source well {source_well_string} to destination wells {dest_well_string} in plate {dest_well_plate.plate_number}.</b>"
             mapping_message.visible = True
-            map_drug_button.label = "Map drug"
+            map_drug_button.label = "Map well"
             map_drug_button.button_type = "success"
 
         if cds_labels_dest_2.selected.indices != []:
@@ -1694,7 +1728,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             else:
                 mapping_message.text = f"<b style='color:green; ; font-size:18px;'> Mapped source well {source_well_string_2} to destination wells {dest_well_string_2} in plate {dest_well_plate_2.plate_number}.</b>"
             mapping_message.visible = True
-            map_drug_button.label = "Map drug"
+            map_drug_button.label = "Map well"
             map_drug_button.button_type = "success"
 
         cds_labels_dest.selected.indices = []
@@ -1715,19 +1749,19 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         if dropdown_well_plate_dest.value == 'Select a well plate':
             mapping_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Select a destination well plate.</b>"
             mapping_message.visible = True
-            unmap_drug_button.label = "Unmap drug"
+            unmap_drug_button.label = "Unmap well"
             return
         
         if cds_labels_source_supp.selected.indices == [] and cds_labels_source.selected.indices == []:
             mapping_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select a source well for the unmapping.</b>"
             mapping_message.visible = True
-            unmap_drug_button.label = "Unmap drug"
+            unmap_drug_button.label = "Unmap well"
             return
 
         if len(cds_labels_source_supp.selected.indices)+len(cds_labels_source.selected.indices)>1:
             mapping_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not unmap several source wells at the same time.</b>"
             mapping_message.visible = True
-            unmap_drug_button.label = "Unmap drug"
+            unmap_drug_button.label = "Unmap well"
             return
 
         experiment = Experiment.objects.filter(name=dropdown_exp.value).first()
@@ -1758,7 +1792,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         mapping_message.text = f"<b style='color:gree; ; font-size:18px;'> Succesfully unmapped {count} wells.</b>"
         mapping_message.visible = True
-        unmap_drug_button.label = "Unmap drug"
+        unmap_drug_button.label = "Unmap well"
         display_drugs_dest_wellplate()
         cds_labels_dest.selected.indices = []
         cds_labels_dest_2.selected.indices =[]
@@ -1772,90 +1806,68 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         bokeh.io.curdoc().add_next_tick_callback(unmap_drugs_to_wellplate)
     unmap_drug_button.on_click(unmap_drugs_to_wellplate_short)
 
+    zoom_in_wells_source = bokeh.models.Button(label="Zoom in wells source")
+    zoom_out_wells_source = bokeh.models.Button(label="Zoom out wells source")
+
+    zoom_in_wells_dest = bokeh.models.Button(label="Zoom in wells dest")
+    zoom_out_wells_dest = bokeh.models.Button(label="Zoom out wells dest")
+
     #___________________________________________________________________________________________
-    def connect_drug_to_wellplate():
-        print('------------------->>>>>>>>> connect_drug_to_wellplate')
-        add_drug_button.label = "Processing"
+    def zoom_size(factor, cds):
+
+        if len(cds.data['size'])>0:
+            new_size = int(cds.data['size'][0] * factor)
+            data = dict(cds.data)
+            data["size"] = [new_size] * len(data["x"])
+            cds.data = data
 
 
-        return
-        if len(source_labels_96.selected.indices)>0:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not add drug to 96 well plate directly.</b>"
-            drug_message.visible = True
-            return
-        if len(source_labels_24.selected.indices)>0:
-            well_names = ''
-            for i in range(len(source_labels_24.selected.indices)):
-                if i==0:
-                    well_names='{}{}'.format(x_labels_24[source_labels_24.selected.indices[i]], y_labels_24[source_labels_24.selected.indices[i]])
-                else:
-                    well_names+=', {}{}'.format(x_labels_24[source_labels_24.selected.indices[i]], y_labels_24[source_labels_24.selected.indices[i]])
+    #___________________________________________________________________________________________
+    def make_zoom_cb_wells_source(factor):
+        def zoom_cb():
+            global NZOOM_WELLS_SOURCE
+            NZOOM_WELLS_SOURCE *= factor
 
-            try:
-                experiment        = Experiment.objects.get(name=experiment_name.value)
-                drugderivation_wp = DrugDerivationWellPlate.objects.select_related().get(experiment=experiment)
-                records = slims.fetch("Content", slims_cr.equals("cntn_id", slimsid_name.value))
-                if len(records)==0:
-                    drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid slims ID.</b>"
-                    drug_message.visible = True
-                    return
-                if len(records)>1:
-                    drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: More than one drug for this ID. Check</b>"
-                    drug_message.visible = True
-                    return
-                try:
-                    concentration = float(drug_concentration.value)
-                except ValueError:
-                    drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Concentration should a numeric value.</b>"
-                    drug_message.visible = True
-                    return
-                
-                drug_json = records[0].json_entity['columns']
-                drug_name = ''
-                for i in drug_json:
-                    if i['name']=='cntn_cf_name':#cntn_cf_reference
-                        drug_name=i['value']
-                print('exp=',experiment)
-                print('ddwp=',drugderivation_wp)
-                print('slims id=',slimsid_name.value)
-                print('drug name = ',drug_name)
-                drug_derivation_wc = DrugDerivationWellCluster(well_plate=drugderivation_wp, slims_id=slimsid_name.value, concentration=drug_concentration.value)
-                drug_derivation_wc.save()
+            plot_wellplate_source.width  = int(plot_wellplate_source.width * factor)
+            plot_wellplate_source.height = int(plot_wellplate_source.height * factor)
+            plot_wellplate_source_supp.width  = int(plot_wellplate_source_supp.width * factor)
+            plot_wellplate_source_supp.height = int(plot_wellplate_source_supp.height * factor)
+
+            zoom_size(factor, cds_labels_source)
+            zoom_size(factor, cds_labels_source_supp)
+            zoom_size(factor, cds_labels_source_drug)
+            zoom_size(factor, cds_labels_source_supp_drug)
 
 
-                x_filled=source_filled_24.data['x']
-                y_filled=source_filled_24.data['y']
-                for i in range(len(source_labels_24.selected.indices)):
+        return zoom_cb
 
-                    if x_labels_24[source_labels_24.selected.indices[i]] in x_filled and y_labels_24[source_labels_24.selected.indices[i]] in y_filled:
-                        drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not add an other drug on the same well, use modify drug.</b>"
-                        drug_message.visible = True
-                        print('x_labels_24[source_labels_24.selected.indices[i]]' ,x_labels_24[source_labels_24.selected.indices[i]])
-                        print('y_labels_24[source_labels_24.selected.indices[i]]' ,y_labels_24[source_labels_24.selected.indices[i]])
-                        print('x_filled=', x_filled)
-                        print('y_filled=', y_filled)
-                        continue
+    #___________________________________________________________________________________________
+    def make_zoom_cb_wells_dest(factor):
+        def zoom_cb():
+            global NZOOM_WELLS_DEST
+            NZOOM_WELLS_DEST *= factor
+            plot_wellplate_dest.width  = int(plot_wellplate_dest.width * factor)
+            plot_wellplate_dest.height = int(plot_wellplate_dest.height * factor)
+            plot_wellplate_dest_2.width  = int(plot_wellplate_dest_2.width * factor)
+            plot_wellplate_dest_2.height = int(plot_wellplate_dest_2.height * factor)
+         
+            zoom_size(factor, cds_labels_dest)
+            zoom_size(factor, cds_labels_dest_2)
+            zoom_size(factor, cds_labels_dest_1_drug)
+            zoom_size(factor, cds_labels_dest_2_drug)
+            zoom_size(factor,cds_labels_dest_mapping)
+            zoom_size(factor,cds_labels_dest_2_mapping)
+            zoom_size(factor,cds_labels_dest_1_drug_control)
+            zoom_size(factor,cds_labels_dest_2_drug_control)
 
-                    drug_derivation_wp = DrugDerivationWellPosition(cluster=drug_derivation_wc, 
-                                                                    position_col=x_labels_24[source_labels_24.selected.indices[i]],
-                                                                    position_row=y_labels_24[source_labels_24.selected.indices[i]])
-                    
-                    drug_derivation_wp.save()
-                    x_filled.append(x_labels_24[source_labels_24.selected.indices[i]])
-                    y_filled.append(y_labels_24[source_labels_24.selected.indices[i]])
-                source_filled_24.data={'x':x_filled, 'y':y_filled}
-            except Experiment.DoesNotExist:
-                drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select or create an experiment first.</b>"
-                drug_message.visible = True
+        return zoom_cb
 
-            if len(source_labels_24.selected.indices)==1: drug_message.text = f"<b style='color:green; ; font-size:18px;'> Adding drug '{drug_name}' to well {well_names}.</b>"
-            else: drug_message.text = f"<b style='color:green; ; font-size:18px;'> Adding drug '{drug_name}' to wells {well_names}.</b>"
-            drug_message.visible = True
+    zoom_in_wells_source.on_click(make_zoom_cb_wells_source(1.2))
+    zoom_out_wells_source.on_click(make_zoom_cb_wells_source(1./1.2))
 
-        else:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select a least one big well.</b>"
-            drug_message.visible = True
-
+    zoom_in_wells_dest.on_click(make_zoom_cb_wells_dest(1.2))
+    zoom_out_wells_dest.on_click(make_zoom_cb_wells_dest(1./1.2))
+ 
 
     #_______________________________________________________
     def add_drug_short():
@@ -1968,13 +1980,15 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     well_layout = bokeh.layouts.row(indent, bokeh.layouts.column(plot_wellplate_source,plot_wellplate_source_supp), bokeh.layouts.column(plot_wellplate_dest, plot_wellplate_dest_2))
     
-    exp_layout = bokeh.layouts.column(bokeh.layouts.row(dropdown_exp, dropdown_well_plate_source,dropdown_n_supp_sourcewell, dropdown_well_plate_dest, dropdown_n_dest_wellplates),
+    exp_layout = bokeh.layouts.column(bokeh.layouts.row(zoom_in_wells_source, zoom_out_wells_source),
+                                      bokeh.layouts.row(dropdown_exp, dropdown_well_plate_source,dropdown_n_supp_sourcewell, dropdown_well_plate_dest, dropdown_n_dest_wellplates),
                                       bokeh.layouts.row(experiment_name, experiment_date, pyrat_id),
                                       bokeh.layouts.row(experiment_description), 
                                       bokeh.layouts.row(create_experiment_button, delete_experiment_button, check_pyrat_id_button, modify_experiment_button))
     
 
-    drug_layout = bokeh.layouts.column(bokeh.layouts.row(slimsid_name, drug_concentration),
+    drug_layout = bokeh.layouts.column(bokeh.layouts.row(zoom_in_wells_dest, zoom_out_wells_dest),
+                                       bokeh.layouts.row(slimsid_name, drug_concentration),
                                        bokeh.layouts.row(add_drug_button, add_drug_other_wells_button, force_add_drug_button, remove_drug_button),
                                        bokeh.layouts.row(wellcluster_comment,bokeh.layouts.column(valid_wellcluster,valid_wellcluster_button)),
                                        bokeh.layouts.row(map_drug_button, unmap_drug_button),)

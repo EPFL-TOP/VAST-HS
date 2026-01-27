@@ -1256,7 +1256,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     x_range_2 = bokeh.models.Range1d(start=0, end=1024)
     y_range_2 = bokeh.models.Range1d(start=0, end=200*4)
     plot_img_vast   = bokeh.plotting.figure(x_range=x_range_2, y_range=y_range_2, tools="box_select,wheel_zoom,box_zoom,reset,undo",width=1110, height=217*4)
-    #plot_img_vast   = bokeh.plotting.figure(tools="box_select,wheel_zoom,box_zoom,reset,undo",width=1024, height=200)
     plot_img_vast.image_rgba(image='img', x=0, y=0, dw=1024, dh=200*4, source=source_img_vast)
 
 

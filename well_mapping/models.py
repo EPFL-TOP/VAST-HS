@@ -179,7 +179,51 @@ class Drug(models.Model):
             f"experiment={exp_list}"
         )
 
-# 1) Before a position is deleted, stash its drugs on the instance
+
+#___________________________________________________________________________________________
+class HeatShock(models.Model):
+    pre_incubation = models.BooleanField(default=False, help_text="If it is a pre-incubation", blank=True)
+    temperature    = models.FloatField(help_text="Temperature of the heatshock (°C).", default=-9999, blank=True, null=True)
+    duration       = models.FloatField(help_text="Duration of the heatshock (minutes).", default=-9999, blank=True, null=True)
+    fish_stage     = models.IntegerField(help_text="Fish stage at heatshock (number of somites).", default=-9999, blank=True, null=True)
+    valid          = models.BooleanField(default=True, help_text="can be imaged with VAST flag", blank=True)
+    position       = models.ManyToManyField(SourceWellPosition, default='', related_name='heatshock', blank=True, help_text="Source well positions of the heatshock in the source well plate")  
+
+    def __str__(self):
+        exp_names = {
+            pos.well_plate.experiment.name
+            for pos in self.position.all()
+        }
+        # turn that set into a comma‑separated string
+        exp_list = ", ".join(sorted(exp_names)) if exp_names else "(no experiment)"
+        return (
+            f"pre_incubation={self.pre_incubation} "
+            f"temperature={self.temperature} "
+            f"duration={self.duration} "
+            f"fish_stage={self.fish_stage} "
+            f"experiment={exp_list}"
+        )
+    
+#___________________________________________________________________________________________
+class DestWellProperties(models.Model):
+    dest_well           = models.OneToOneField(DestWellPosition, default='', on_delete=models.CASCADE, related_name='dest_well_properties')
+    n_total_somites     = models.IntegerField(default=-9999, help_text="Number of total somites in this well", blank=True, null=True)
+    n_bad_somites_cat1  = models.IntegerField(default=-9999, help_text="Number of cat1 bad somites in this well", blank=True, null=True)
+    n_bad_somites_cat2  = models.IntegerField(default=-9999, help_text="Number of cat2 bad somites in this well", blank=True, null=True)
+    n_bad_somites_cat3  = models.IntegerField(default=-9999, help_text="Number of bad somites in this well", blank=True, null=True)
+    n_total_somites_err = models.IntegerField(default=0, help_text="Number of total somites error", blank=True, null=True)
+    comments            = models.TextField(blank=True, max_length=2000, help_text="Comments if any", null=True)
+    valid               = models.BooleanField(default=True, help_text="should be used for training", blank=True, null=True)
+    correct_orientation = models.BooleanField(default=True, help_text="is the fish correctly oriented (head to the left)?", blank=True, null=True)
+    use_for_training    = models.BooleanField(default=False, help_text="should be used for training", blank=True, null=True)
+    use_for_validation  = models.BooleanField(default=False, help_text="should be used for validation", blank=True, null=True)
+
+    def __str__(self):
+        """String for representing the Model object (in Admin site etc.)"""
+        return "exp={0}, pos={1}{2}, n_plate={3}, n_total_somites={4}, n_bad_somites_cat1={5}, n_bad_somites_cat2={6}, n_bad_somites_cat3={7}, valid={8}".format(self.dest_well.well_plate.experiment.name, self.dest_well.position_row, self.dest_well.position_col, self.dest_well.well_plate.plate_number, self.n_total_somites, self.n_bad_somites_cat1, self.n_bad_somites_cat2, self.n_bad_somites_cat3, self.valid)
+    
+
+    # 1) Before a position is deleted, stash its drugs on the instance
 @receiver(pre_delete, sender=SourceWellPosition)
 def _stash_drugs_for_cleanup(sender, instance, **kwargs):
     # pull them off the DB so we have a Python list to work with later
@@ -192,20 +236,3 @@ def _cleanup_orphan_drugs(sender, instance, **kwargs):
         # if this was the drug’s last position, we can delete it
         if not drug.position.exists():
             drug.delete()
-
-
-#___________________________________________________________________________________________
-class DestWellProperties(models.Model):
-    dest_well           = models.OneToOneField(DestWellPosition, default='', on_delete=models.CASCADE, related_name='dest_well_properties')
-    n_total_somites     = models.IntegerField(default=-9999, help_text="Number of total somites in this well", blank=True, null=True)
-    n_bad_somites_cat1  = models.IntegerField(default=-9999, help_text="Number of cat1 bad somites in this well", blank=True, null=True)
-    n_bad_somites_cat2  = models.IntegerField(default=-9999, help_text="Number of cat2 bad somites in this well", blank=True, null=True)
-    n_bad_somites_cat3  = models.IntegerField(default=-9999, help_text="Number of bad somites in this well", blank=True, null=True)
-    n_total_somites_err = models.IntegerField(default=0, help_text="Number of total somites error", blank=True, null=True)
-    comments            = models.TextField(blank=True, max_length=2000, help_text="Comments if any", null=True)
-    valid               = models.BooleanField(default=True, help_text="should be used for training", blank=True, null=True)
-    correct_orientation = models.BooleanField(default=True, help_text="is the fish correctly oriented (head to the left)?", blank=True, null=True)
-
-    def __str__(self):
-        """String for representing the Model object (in Admin site etc.)"""
-        return "exp={0}, pos={1}{2}, n_plate={3}, n_total_somites={4}, n_bad_somites_cat1={5}, n_bad_somites_cat2={6}, n_bad_somites_cat3={7}, valid={8}".format(self.dest_well.well_plate.experiment.name, self.dest_well.position_row, self.dest_well.position_col, self.dest_well.well_plate.plate_number, self.n_total_somites, self.n_bad_somites_cat1, self.n_bad_somites_cat2, self.n_bad_somites_cat3, self.valid)
