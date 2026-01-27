@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('agg')
 
-from well_mapping.models import Experiment, SourceWellPlate, DestWellPlate, SourceWellPosition, DestWellPosition, Drug
+from well_mapping.models import Experiment, HeatShock, SourceWellPlate, DestWellPlate, SourceWellPosition, DestWellPosition, Drug
 import accesskeys as accessk
 
 from requests.auth import HTTPBasicAuth
@@ -1280,7 +1280,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         print('positions source supp ', pos_supp)
 
         if cds_labels_source.selected.indices == [] and cds_labels_source_supp.selected.indices == []:
-            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select a source well.</b>"
+            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select at least a source well.</b>"
             hs_message.visible = True
             add_hs_button.label = "Add heat shock"
             add_hs_button.button_type = "success"
@@ -1312,7 +1312,26 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             add_hs_button.button_type = "success"
             return
         
+        hs_exists = HeatShock.objects.filter(temperature=hs_temperature.value, duration=hs_duration.value, fish_stage=hs_fish_stage.value).exists()
 
+        if hs_exists:
+            hs_exp = HeatShock.objects.filter(temperature=hs_temperature.value, duration=hs_duration.value, fish_stage=hs_fish_stage.value,
+                                       position__well_plate__experiment__name=experiment_name.value).distinct()
+        else:
+            hs = HeatShock(temperature=hs_temperature.value,
+                           duration=hs_duration.value,
+                           fish_stage=hs_fish_stage.value)
+            hs.save()
+            hs_message.text = f"<b style='color:green; ; font-size:18px;'> Added heat shock {hs_temperature.value}C for {hs_duration.value}min at fish stage {hs_fish_stage.value} to wells {pos} supp{pos_supp}.</b>"
+            hs_message.visible = True
+            add_hs_button.label = "Add heat shock"
+            add_hs_button.button_type = "success"
+
+            global _programmatic_change
+            _programmatic_change = True
+            cds_labels_source.selected.indices = []
+            cds_labels_source_supp.selected.indices = []
+            _programmatic_change = False
 
     #___________________________________________________________________________________________
     #this function adds a drug to the source well plate and to the database
