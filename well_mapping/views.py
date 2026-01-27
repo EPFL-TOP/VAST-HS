@@ -173,9 +173,20 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     wellvalid_message = bokeh.models.Div(visible=False)   
 
     slimsid_name        = bokeh.models.TextInput(title="Slims ID: (eg: OA_DS_00024)", value='' )
-    drug_concentration  = bokeh.models.TextInput(title="Concentration (uM) or Percentage (%)", value='', width=200)
+    drug_concentration  = bokeh.models.TextInput(title="Concentration (µMol) or Percentage (%)", value='', width=200)
     valid_wellcluster   = bokeh.models.Select(value='True', title='Valid well cluster', options=['True','False'])
     wellcluster_comment = bokeh.models.widgets.TextAreaInput(title="Comment:", value='', rows=7, width=300, css_classes=["font-size:18px"])
+
+    hs_pre_incubation = bokeh.models.Select(title="Pre-incubation:", value="No", options=["Yes", "No"], width=110)
+    hs_temperature    = bokeh.models.TextInput(title="Temperature (°C):", value="", width=110)
+    hs_duration       = bokeh.models.TextInput(title="Duration (min):", value="", width=110)
+    hs_fish_stage     = bokeh.models.TextInput(title="Fish Stage:", value="", width=110)
+    hs_message        = bokeh.models.Div(text='', width=600, height=50, visible=False)
+
+    add_hs_button             = bokeh.models.Button(label="Add HS", button_type="success", width=110)
+    add_hs_other_wells_button = bokeh.models.Button(label="Add HS to other wells", button_type="success", width=150)
+    force_hs_drug_button      = bokeh.models.Button(label="Force add HS", button_type="success", width=150)
+    remove_hs_button          = bokeh.models.Button(label="Remove HS", button_type="warning", width=110)
 
     lines_source = bokeh.models.ColumnDataSource(data=dict(x_start=[], y_start=[], x_end=[], y_end=[]))
     p_lines = bokeh.plotting.figure(width=1500, height=500, match_aspect=True, tools="", toolbar_location=None)
@@ -896,7 +907,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 x_filled.append(well_pos.position_col)
                 y_filled.append(well_pos.position_row)
                 size_filled.append(cds_labels_source.data['size'][cds_labels_source.data['x'].index(well_pos.position_col)])
-                drug_filled.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
+                #drug_filled.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
+                drug_filled.append('<br>'.join([f'{str(d.derivation_name)} - {d.concentration}µMol' for d in drug]))
         cds_labels_source_drug.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled}
 
         x_supp = []
@@ -909,7 +921,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 x_supp.append(well_pos.position_col)
                 y_supp.append(well_pos.position_row)
                 size_supp.append(cds_labels_source_supp.data['size'][cds_labels_source_supp.data['x'].index(well_pos.position_col)])
-                drug_supp.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
+                #drug_supp.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
+                drug_supp.append('<br>'.join([f'{str(d.derivation_name)} - {d.concentration}µMol' for d in drug]))
 
         cds_labels_source_supp_drug.data={'x':x_supp, 'y':y_supp, 'size':size_supp,'drug':drug_supp}
 
@@ -1254,6 +1267,53 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     valid_wellcluster_button.on_click(add_wellcluster_comment_valid)
 
+
+
+    #___________________________________________________________________________________________
+    def add_heat_shock():
+        print('------------------->>>>>>>>> add_heat_shock')
+
+        pos=get_well_mapping(cds_labels_source.selected.indices)
+        pos_supp=get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
+
+        print('positions source ', pos)
+        print('positions source supp ', pos_supp)
+
+        if cds_labels_source.selected.indices == [] and cds_labels_source_supp.selected.indices == []:
+            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select a source well.</b>"
+            hs_message.visible = True
+            add_hs_button.label = "Add heat shock"
+            add_hs_button.button_type = "success"
+            return
+
+        experiement   = Experiment.objects.filter(name=dropdown_exp.value).first()
+        if not experiement:
+            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Select a valid experiment.</b>"
+            hs_message.visible = True
+            add_hs_button.label = "Add heat shock"
+            add_hs_button.button_type = "success"
+            return
+
+        if hs_temperature.value == '' or hs_duration.value == '' or hs_fish_stage.value == '':
+            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid heat shock temperature, duration and fish stage.</b>"
+            hs_message.visible = True
+            add_hs_button.label = "Add heat shock"
+            add_hs_button.button_type = "success"
+            return
+
+        try:
+            temp = float(hs_temperature.value)
+            dur = int(hs_duration.value)
+            stage = int(hs_fish_stage.value)
+        except ValueError:
+            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid numerical heat shock temperature, duration and fish stage.</b>"
+            hs_message.visible = True
+            add_hs_button.label = "Add heat shock"
+            add_hs_button.button_type = "success"
+            return
+        
+
+
     #___________________________________________________________________________________________
     #this function adds a drug to the source well plate and to the database
     def add_drug():
@@ -1274,10 +1334,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             add_drug_button.button_type = "success"
             return
         drug_deriv = slims_deriv[0].json_entity['columns']
-
-        #print('drug_deriv')
-        #for d in drug_deriv:
-        #    print('   ----   ',d)
 
         stock_id = ''
         deriv_name = ''
@@ -1378,7 +1434,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         print('cds_labels_source_drug.indices  ',cds_labels_source_drug.selected.indices)
         print('cds_labels_source_supp_drug.data     ',cds_labels_source_supp_drug.data)
         print('cds_labels_source_supp_drug.indices  ',cds_labels_source_supp_drug.selected.indices)
-
 
 
     #___________________________________________________________________________________________
@@ -1890,6 +1945,14 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         bokeh.io.curdoc().add_next_tick_callback(add_drug_other_wells)
     add_drug_other_wells_button.on_click(add_drug_other_wells_short)
 
+
+    #___________________________________________________________________________________________
+    def add_hs_short():
+        add_hs_button.label = "Processing"
+        add_hs_button.button_type = "danger"
+        bokeh.io.curdoc().add_next_tick_callback(add_heat_shock)
+    add_hs_button.on_click(add_hs_short)
+
     #___________________________________________________________________________________________
     def select_tap_callback():
         return """
@@ -1968,17 +2031,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     plot_wellplate_dest.add_tools(tap_tool)
     plot_wellplate_dest_2.add_tools(tap_tool)
     plot_wellplate_source_supp.add_tools(tap_tool)
-
-    hs_pre_incubation = bokeh.models.Select(title="Pre-incubation:", value="No", options=["Yes", "No"], width=110)
-    hs_temperature    = bokeh.models.TextInput(title="Temperature (°C):", value="", width=110)
-    hs_duration       = bokeh.models.TextInput(title="Duration (min):", value="", width=110)
-    hs_fish_stage     = bokeh.models.TextInput(title="Fish Stage:", value="", width=110)
-    hs_message        = bokeh.models.Div(text='', width=600, height=50, visible=False)
-
-    add_hs_button             = bokeh.models.Button(label="Add heat shock", button_type="success", width=120)
-    add_hs_other_wells_button = bokeh.models.Button(label="Add heat shock to other wells", button_type="success", width=150)
-    force_hs_drug_button      = bokeh.models.Button(label="Force add heat shock", button_type="success", width=150)
-    remove_hs_button          = bokeh.models.Button(label="Remove heat shock", button_type="warning", width=150)
 
     indent = bokeh.models.Spacer(width=30)
 
