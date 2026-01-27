@@ -1973,13 +1973,12 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     hs_temperature    = bokeh.models.TextInput(title="Temperature (°C):", value="", width=110)
     hs_duration       = bokeh.models.TextInput(title="Duration (min):", value="", width=110)
     hs_fish_stage     = bokeh.models.TextInput(title="Fish Stage:", value="", width=110)
+    hs_message        = bokeh.models.Div(text='', width=600, height=50, visible=False)
 
-    hs_message = bokeh.models.Div(text='', width=600, height=50, visible=False)
-
-    add_hs_button = bokeh.models.Button(label="Add heat shock", button_type="success", width=120)
+    add_hs_button             = bokeh.models.Button(label="Add heat shock", button_type="success", width=120)
     add_hs_other_wells_button = bokeh.models.Button(label="Add heat shock to other wells", button_type="success", width=150)
-    force_hs_drug_button = bokeh.models.Button(label="Force add heat shock", button_type="success", width=150)
-    remove_hs_button = bokeh.models.Button(label="Remove heat shock", button_type="warning", width=150)
+    force_hs_drug_button      = bokeh.models.Button(label="Force add heat shock", button_type="success", width=150)
+    remove_hs_button          = bokeh.models.Button(label="Remove heat shock", button_type="warning", width=150)
 
     indent = bokeh.models.Spacer(width=30)
 
