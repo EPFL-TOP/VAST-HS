@@ -1361,12 +1361,18 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             add_hs_button.button_type = "success"
             return
         
-        hs_exists = HeatShock.objects.filter(temperature=hs_temperature.value, duration=hs_duration.value, fish_stage=hs_fish_stage.value).exists()
+        heat_shock = HeatShock.objects.filter(temperature=hs_temperature.value, duration=hs_duration.value, fish_stage=hs_fish_stage.value)
+        print('heat_shock=', heat_shock)
+        if len(heat_shock) == 1:
+            wells =', '.join(add_heatshock_to_well(heat_shock.first()))
+            n_hs = heat_shock.first().position.count()
+            print('n_hs=', n_hs)
+            hs_message.text = f"<b style='color:green; ; font-size:18px;'> Added heat shock #{n_hs} {hs_temperature.value}C for {hs_duration.value}min at fish stage {hs_fish_stage.value} to wells {wells}.</b>"
+            hs_message.visible = True
+            add_hs_button.label = "Add heat shock"
+            add_hs_button.button_type = "success"
 
-        if hs_exists:
-            hs_exp = HeatShock.objects.filter(temperature=hs_temperature.value, duration=hs_duration.value, fish_stage=hs_fish_stage.value,
-                                       position__well_plate__experiment__name=experiment_name.value).distinct()
-        else:
+        elif len(heat_shock) == 0:
             hs = HeatShock(temperature=hs_temperature.value,
                            duration=hs_duration.value,
                            fish_stage=hs_fish_stage.value)
@@ -1379,11 +1385,18 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             add_hs_button.label = "Add heat shock"
             add_hs_button.button_type = "success"
 
-            global _programmatic_change
-            _programmatic_change = True
-            cds_labels_source.selected.indices = []
-            cds_labels_source_supp.selected.indices = []
-            _programmatic_change = False
+        else:
+            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Multiple heat shocks found with same parameters, huston we have a problem.</b>"
+            hs_message.visible = True
+            add_hs_button.label = "Add heat shock"
+            add_hs_button.button_type = "success"
+            return
+
+        global _programmatic_change
+        _programmatic_change = True
+        cds_labels_source.selected.indices = []
+        cds_labels_source_supp.selected.indices = []
+        _programmatic_change = False
 
     #___________________________________________________________________________________________
     #this function adds a drug to the source well plate and to the database
