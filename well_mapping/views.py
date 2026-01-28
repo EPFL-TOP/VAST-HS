@@ -1160,8 +1160,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     #cds_labels_source.selected.on_change('indices',display_heatshock_name)
 
-
-
     #___________________________________________________________________________________________
     def display_drug_hs_name(attr, old, new):
         print('------------------->>>>>>>>> display_drug_hs_name')
@@ -1187,67 +1185,52 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             drug_message.visible = False
             mapping_message.text = ''
             mapping_message.visible = False
-            hs_message.text = ''
-            hs_message.visible = False
             cds_labels_dest_2_mapping.data = {'x':[], 'y':[], 'size':[]}
             cds_labels_dest_mapping.data = {'x':[], 'y':[], 'size':[]}
             return
         if len(new) > 1:
             drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not display more than 1 well drug or hs info.</b>"
             drug_message.visible = True
-            hs_message.text = f""
-            hs_message.visible = True
             return
         well_position = get_well_mapping(new)
         source_well_positions = SourceWellPosition.objects.filter(well_plate=source_well_plate, is_supp=False, position_col=well_position[0][0], position_row=well_position[0][1])
         drugs = Drug.objects.filter(position__in=source_well_positions)
+        hs = HeatShock.objects.filter(position__in=source_well_positions)
+
         print("--------source_well_positions ",source_well_positions)
 
-        if len(drugs) == 0:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> No drug in selected well {well_position[0][1]}{well_position[0][0]}.</b>"
-
+        if len(drugs) == 0 and len(hs) == 0:
+            drug_message.text = f"<b style='color:red; ; font-size:18px;'> No drug nor heatshock in selected well {well_position[0][1]}{well_position[0][0]}.</b>"
 
         else:
-            items_html = "".join(
+            items_html_drugs = "".join(
                 f"<li style='color:navy; font-size:14px; "
                 f"margin-bottom:4px;'>{drug}</li>"
                 for drug in drugs)
 
+            items_html_hs = "".join(
+                f"<li style='color:navy; font-size:14px; "
+                f"margin-bottom:4px;'>{h}</li>"
+                for h in hs)
+            
             drug_message.text = f"""
             <b style='color:green; font-size:18px;'>
-                Drug(s) in selected well {well_position[0][1]}{well_position[0][0]}:
+                Drug(s) or Heatshock(s) in selected well {well_position[0][1]}{well_position[0][0]}:
             </b>
             <ul style='margin-top:0;'>
-                {items_html} <br> <b style='color:black; font-size:14px;'> comments={source_well_positions[0].comments}, valid well={source_well_positions[0].valid}</b>
+                {items_html_drugs} 
+                <hr>
+                <br>
+
+                {items_html_hs} 
+                <br> 
+                <b style='color:black; font-size:14px;'> comments={source_well_positions[0].comments}, valid well={source_well_positions[0].valid}</b>
             </ul>
             """
 
         drug_message.visible = True
         add_drug_button.label = "Add drug"
         add_drug_button.button_type = "success"
-
-        hs = HeatShock.objects.filter(position__in=source_well_positions)
-        print("--------source_well_positions ",source_well_positions)
-
-        if len(hs) == 0:
-            hs_message.text = f"<b style='color:red; ; font-size:18px;'> No heatshock in selected well {well_position[0][1]}{well_position[0][0]}.</b>"
-
-        else:
-            items_html = "".join(
-                f"<li style='color:navy; font-size:14px; "
-                f"margin-bottom:4px;'>{h}</li>"
-                for h in hs)
-
-            hs_message.text = f"""
-            <b style='color:green; font-size:18px;'>
-                Heatshock(s) in selected well {well_position[0][1]}{well_position[0][0]}:
-            </b>
-            <ul style='margin-top:0;'>
-                {items_html} <br> <b style='color:black; font-size:14px;'> comments={source_well_positions[0].comments}, valid well={source_well_positions[0].valid}</b>
-            </ul>
-            """
-
-        hs_message.visible = True
         add_hs_button.label = "Add heatshock"
         add_hs_button.button_type = "success"
 
