@@ -938,6 +938,59 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         add_hs_button.label = "Add heatshock"
         add_hs_button.button_type = "success"
 
+        dests = source_well_positions.first().destwellposition_set.all()
+        print('dests=', dests)
+
+
+        if len(dests) == 0:
+            mapping_message.text = f"<b style='color:red; font-size:18px;'> No destination wells mapped for well {well_position[0][1]}{well_position[0][0]}.</b>"
+            mapping_message.visible = True
+            cds_labels_dest_2_mapping.data = {'x':[], 'y':[], 'size':[]}
+            cds_labels_dest_mapping.data = {'x':[], 'y':[], 'size':[]}
+            return
+        
+        str_1 = ''
+        str_2 = ''
+        for well_pos in dests:
+            if well_pos.source_well!= None:
+                if well_pos.well_plate.plate_number == 1:
+                    if str_1 == "":
+                        str_1 = f'{str(well_pos.position_row)}{well_pos.position_col}'
+                    else:
+                        str_1+=f', {str(well_pos.position_row)}{well_pos.position_col}'
+                if well_pos.well_plate.plate_number == 2:
+                    if str_2 == "":
+                        str_2 = f'{str(well_pos.position_row)}{well_pos.position_col}'
+                    else:
+                        str_2+=f', {str(well_pos.position_row)}{well_pos.position_col}'
+        if str_1 != '':
+            mapping_message.text = f"<b style='color:green; font-size:18px;'> Mapped well {well_position[0][1]}{well_position[0][0]} to {str_1} for plate number 1.</b><br>"
+        if str_2 != '' and str_1 != '':
+            mapping_message.text += f"<b style='color:green; font-size:18px;'> Mapped well {well_position[0][1]}{well_position[0][0]} to {str_2} for plate number 2.</b>"
+        if str_2 != '' and str_1 == '':
+            mapping_message.text = f"<b style='color:green; font-size:18px;'> Mapped well {well_position[0][1]}{well_position[0][0]} to {str_2} for plate number 2.</b>"
+
+        mapping_message.visible = True
+
+        x_dest_1 = []
+        y_dest_1 = []
+        size_dest_1 = []
+        x_dest_2 = []
+        y_dest_2 = []
+        size_dest_2 = []
+        for well_pos in dests:
+            if well_pos.source_well!= None:
+                if well_pos.well_plate.plate_number == 1:
+                    x_dest_1.append(well_pos.position_col)
+                    y_dest_1.append(well_pos.position_row)
+                    size_dest_1.append(cds_labels_dest.data['size'][cds_labels_dest.data['x'].index(well_pos.position_col)])
+                if well_pos.well_plate.plate_number == 2:
+                    x_dest_2.append(well_pos.position_col)
+                    y_dest_2.append(well_pos.position_row)
+                    size_dest_2.append(cds_labels_dest.data['size'][cds_labels_dest.data['x'].index(well_pos.position_col)])
+        cds_labels_dest_mapping.data = {'x':x_dest_1, 'y':y_dest_1, 'size':size_dest_1}
+        cds_labels_dest_2_mapping.data = {'x':x_dest_2, 'y':y_dest_2, 'size':size_dest_2}
+
     cds_labels_source.selected.on_change('indices',display_heatshock_name)
 
     #___________________________________________________________________________________________
