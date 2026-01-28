@@ -1220,8 +1220,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             <ul style='margin-top:0;'>
                 {items_html_drugs} 
                 <hr>
-                <br>
-
                 {items_html_hs} 
                 <br> 
                 <b style='color:black; font-size:14px;'> comments={source_well_positions[0].comments}, valid well={source_well_positions[0].valid}</b>
@@ -1451,6 +1449,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         wellcluster_comment.value = ''
         valid_wellcluster.value = 'True'
+
+        display_drug_hs_name(None, None, cds_labels_source.selected.indices)
 
     valid_wellcluster_button.on_click(add_wellcluster_comment_valid)
 
