@@ -1499,36 +1499,23 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             add_hs_button.button_type = "success"
             return
         
-        heat_shock = HeatShock.objects.filter(temperature=hs_temperature.value, duration=hs_duration.value, fish_stage=hs_fish_stage.value)
-        print('heat_shock=', heat_shock)
-        if len(heat_shock) == 1:
-            wells =', '.join(add_heatshock_to_well(heat_shock.first()))
-            n_hs = heat_shock.first().position.count()
-            print('n_hs=', n_hs)
-            hs_message.text = f"<b style='color:green; ; font-size:18px;'> Added heat shock #{n_hs} {hs_temperature.value}C for {hs_duration.value}min at fish stage {hs_fish_stage.value} to wells {wells}.</b>"
-            hs_message.visible = True
-            add_hs_button.label = "Add heat shock"
-            add_hs_button.button_type = "success"
 
-        elif len(heat_shock) == 0:
-            hs = HeatShock(temperature=hs_temperature.value,
-                           duration=hs_duration.value,
-                           fish_stage=hs_fish_stage.value)
-            hs.save()
+        heat_shocks = HeatShock.objects.filter(position__well_plate=experiement.source_plate)
+        print('heat_shocks=', heat_shocks)
+        hs = HeatShock(temperature=hs_temperature.value,
+                        duration=hs_duration.value,
+                        fish_stage=hs_fish_stage.value,
+                        hs_order=len(heat_shocks)+1)
+        hs.save()
 
-            wells =', '.join(add_heatshock_to_well(hs))
+        wells =', '.join(add_heatshock_to_well(hs))
 
-            hs_message.text = f"<b style='color:green; ; font-size:18px;'> Added heat shock {hs_temperature.value}C for {hs_duration.value}min at fish stage {hs_fish_stage.value} to wells {wells}.</b>"
-            hs_message.visible = True
-            add_hs_button.label = "Add heat shock"
-            add_hs_button.button_type = "success"
+        hs_message.text = f"<b style='color:green; ; font-size:18px;'> Added heat shock {hs_temperature.value}C for {hs_duration.value}min at fish stage {hs_fish_stage.value} to wells {wells}.</b>"
+        hs_message.visible = True
+        add_hs_button.label = "Add heat shock"
+        add_hs_button.button_type = "success"
 
-        else:
-            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Multiple heat shocks found with same parameters, huston we have a problem.</b>"
-            hs_message.visible = True
-            add_hs_button.label = "Add heat shock"
-            add_hs_button.button_type = "success"
-            return
+     
 
         global _programmatic_change
         _programmatic_change = True
@@ -1643,7 +1630,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             
             display_drugs_source_wellplate()
             display_drugs_dest_wellplate()
-            display_drug_hs_name(None, None, cds_labels_source.selected.indices)
 
             print('about ot call display_drugs_source_wellplate')
             global _programmatic_change

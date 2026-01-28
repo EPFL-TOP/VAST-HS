@@ -187,21 +187,22 @@ class HeatShock(models.Model):
     duration       = models.FloatField(help_text="Duration of the heatshock (minutes).", default=-9999, blank=True, null=True)
     fish_stage     = models.IntegerField(help_text="Fish stage at heatshock (number of somites).", default=-9999, blank=True, null=True)
     valid          = models.BooleanField(default=True, help_text="can be imaged with VAST flag", blank=True)
-    position       = models.ManyToManyField(SourceWellPosition, default='', related_name='heatshock', blank=True, help_text="Source well positions of the heatshock in the source well plate")  
-
+    position       = models.ForeignKey(SourceWellPosition, default='', related_name='heatshock',  help_text="Source well position of the heatshock in the source well plate", on_delete=models.CASCADE)  
+    hs_order       = models.IntegerField(help_text="Order of the heatshock in the well (1 for first, 2 for second, etc.)", default=-9999, blank=True, null=True)
     def __str__(self):
-        exp_names = {
-            pos.well_plate.experiment.name
-            for pos in self.position.all()
-        }
+        #exp_names = {
+        #    pos.well_plate.experiment.name
+        #    for pos in self.position.all()
+        #}
         # turn that set into a comma‑separated string
-        exp_list = ", ".join(sorted(exp_names)) if exp_names else "(no experiment)"
+        #exp_list = ", ".join(sorted(exp_names)) if exp_names else "(no experiment)"
         return (
             f"pre_incubation={self.pre_incubation} "
             f"temperature={self.temperature} "
             f"duration={self.duration} "
             f"fish_stage={self.fish_stage} "
-            f"experiment={exp_list}"
+            f"hs_order={self.hs_order} "
+            #f"experiment={exp_list}"
         )
     
 #___________________________________________________________________________________________
