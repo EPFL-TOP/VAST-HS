@@ -1505,7 +1505,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         hs = HeatShock(temperature=hs_temperature.value,
                         duration=hs_duration.value,
                         fish_stage=hs_fish_stage.value,
-                        hs_order=len(heat_shocks)+1)
+                        hs_order=len(heat_shocks)+1,
+                        position=None)
         hs.save()
 
         wells =', '.join(add_heatshock_to_well(hs))
