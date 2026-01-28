@@ -1535,6 +1535,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         cds_labels_source.selected.indices = []
         cds_labels_source_supp.selected.indices = []
         _programmatic_change = False
+        display_drug_hs_name(None, None, cds_labels_source.selected.indices)
+
 
     #___________________________________________________________________________________________
     #this function adds a drug to the source well plate and to the database
@@ -1641,6 +1643,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             
             display_drugs_source_wellplate()
             display_drugs_dest_wellplate()
+            display_drug_hs_name(None, None, cds_labels_source.selected.indices)
 
             print('about ot call display_drugs_source_wellplate')
             global _programmatic_change
