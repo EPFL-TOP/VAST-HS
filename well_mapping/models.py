@@ -166,17 +166,17 @@ class Drug(models.Model):
     
     def __str__(self):
        
-        exp_names = {
-            pos.well_plate.experiment.name
-            for pos in self.position.all()
-        }
+        #exp_names = {
+        #    pos.well_plate.experiment.name
+        #    for pos in self.position.all()
+        #}
         # turn that set into a comma‑separated string
-        exp_list = ", ".join(sorted(exp_names)) if exp_names else "(no experiment)"
+        #exp_list = ", ".join(sorted(exp_names)) if exp_names else "(no experiment)"
         return (
             f"derivation_name={self.derivation_name} "
             f"slims_id={self.slims_id} "
             f"concentration={self.concentration} "
-            f"experiment={exp_list}"
+            #f"experiment={exp_list}"
         )
 
 
