@@ -163,7 +163,7 @@ class Drug(models.Model):
     duration        = models.FloatField(help_text="Duration of the drug treatment (minutes).", default=-9999, blank=True, null=True)
     fish_stage      = models.IntegerField(help_text="Fish stage at drug treatment (number of somites).", default=-9999, blank=True, null=True)
     order           = models.IntegerField(help_text="Order of the drug in the well (1 for first, 2 for second, etc.)", default=-9999, blank=True, null=True)
-    position        = models.ForeignKey(SourceWellPosition, default='', related_name='drugs', blank=True, help_text="Source well positions of the drug in the source well plate", on_delete=models.CASCADE)  
+    position        = models.ForeignKey(SourceWellPosition, default='', related_name='drugs', null=True, blank=True, help_text="Source well positions of the drug in the source well plate", on_delete=models.CASCADE)  
     
     def __str__(self):
        
