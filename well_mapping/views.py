@@ -161,32 +161,32 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     experiments=sorted(experiments)
     dropdown_exp  = bokeh.models.Select(value='Select experiment', title='Experiment', options=experiments)
 
-    add_drug_button = bokeh.models.Button(label="Add drug",  button_type="success")
-    remove_drug_button = bokeh.models.Button(label="Remove drug",  button_type="danger")
-    map_drug_button = bokeh.models.Button(label="Map well",  button_type="success")
-    unmap_drug_button = bokeh.models.Button(label="Unmap well",  button_type="danger")
-    add_drug_other_wells_button = bokeh.models.Button(label="Add drug to other wells",  button_type="success")
-    force_add_drug_button = bokeh.models.Button(label="Force add drug",  button_type="success")
-    valid_wellcluster_button = bokeh.models.Button(label="Enter comment/Valid",  button_type="success")
-    drug_message    = bokeh.models.Div(visible=False)
-    mapping_message = bokeh.models.Div(visible=False)   
-    wellvalid_message = bokeh.models.Div(visible=False)   
 
-    slimsid_name        = bokeh.models.TextInput(title="Slims ID: (eg: OA_DS_00024)", value='' )
-    drug_concentration  = bokeh.models.TextInput(title="Concentration (µMol) or Percentage (%)", value='', width=200)
-    valid_wellcluster   = bokeh.models.Select(value='True', title='Valid well cluster', options=['True','False'])
-    wellcluster_comment = bokeh.models.widgets.TextAreaInput(title="Comment:", value='', rows=7, width=300, css_classes=["font-size:18px"])
+    map_drug_button   = bokeh.models.Button(label="Map well",  button_type="success")
+    unmap_drug_button = bokeh.models.Button(label="Unmap well",  button_type="danger")
+    mapping_message   = bokeh.models.Div(visible=False)   
+
+    slimsid_name       = bokeh.models.TextInput(title="Slims ID: (eg: OA_DS_00024)", value='' )
+    drug_concentration = bokeh.models.TextInput(title="Concentration (µMol) or Percentage (%)", value='', width=200)
+    drug_fish_stage    = bokeh.models.TextInput(title="Fish Stage:", value="", width=110)
+    drug_duration      = bokeh.models.TextInput(title="Duration (min):", value="", width=110)
+    drug_message       = bokeh.models.Div(visible=False)
+    add_drug_button    = bokeh.models.Button(label="Add drug",  button_type="success")
+    remove_drug_button = bokeh.models.Button(label="Remove last drug",  button_type="danger")
 
     hs_pre_incubation = bokeh.models.Select(title="Pre-incubation:", value="No", options=["Yes", "No"], width=110)
     hs_temperature    = bokeh.models.TextInput(title="Temperature (°C):", value="", width=110)
     hs_duration       = bokeh.models.TextInput(title="Duration (min):", value="", width=110)
     hs_fish_stage     = bokeh.models.TextInput(title="Fish Stage:", value="", width=110)
     hs_message        = bokeh.models.Div(text='', width=600, height=50, visible=False)
+    add_hs_button     = bokeh.models.Button(label="Add HS", button_type="success", width=110)
+    remove_hs_button  = bokeh.models.Button(label="Remove last HS", button_type="danger", width=110)
 
-    add_hs_button             = bokeh.models.Button(label="Add HS", button_type="success", width=110)
-    add_hs_other_wells_button = bokeh.models.Button(label="Add HS to other wells", button_type="success", width=150)
-    force_hs_drug_button      = bokeh.models.Button(label="Force add HS", button_type="success", width=150)
-    remove_hs_button          = bokeh.models.Button(label="Remove HS", button_type="danger", width=110)
+
+    valid_wellcluster_button = bokeh.models.Button(label="Enter comment/Valid",  button_type="success")
+    valid_wellcluster   = bokeh.models.Select(value='True', title='Valid well cluster', options=['True','False'])
+    wellcluster_comment = bokeh.models.widgets.TextAreaInput(title="Comment:", value='', rows=7, width=300, css_classes=["font-size:18px"])
+    wellvalid_message = bokeh.models.Div(visible=False)   
 
     lines_source = bokeh.models.ColumnDataSource(data=dict(x_start=[], y_start=[], x_end=[], y_end=[]))
     p_lines = bokeh.plotting.figure(width=1500, height=500, match_aspect=True, tools="", toolbar_location=None)
@@ -838,8 +838,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
 
     #___________________________________________________________________________________________
-    def add_heatshock_to_well(heatshock):
-        print('------------------->>>>>>>>> add_heatshock_to_well')
+    def add_drug_hs_to_well(toadd):
+        print('------------------->>>>>>>>> add_drug_hs_to_well')
 
         experiement   = Experiment.objects.filter(name=dropdown_exp.value).first()
         if not experiement:
@@ -853,8 +853,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         positions = get_well_mapping(cds_labels_source.selected.indices)
         positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
-        print('add heatshock to well positions=', positions)
-        print('add heatshock to well positions supp=', positions_supp)
+        print('add hs drug to well positions=', positions)
+        print('add hs drug to well positions supp=', positions_supp)
 
         wells=[]
         for pos in positions:
@@ -862,7 +862,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             try:
                 source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=False)
                 print('source_well_pos=', source_well_pos)
-                heatshock.position.add(source_well_pos)
+                toadd.position.add(source_well_pos)
+                toadd.save()
                 wells.append(f"{pos[1]}{pos[0]}")
             except SourceWellPosition.DoesNotExist:
                 print(f"Source well position {pos} does not exist in the source well plate.")
@@ -872,7 +873,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             try:
                 source_well_pos_supp = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
                 print('source_well_pos_supp=', source_well_pos_supp)
-                heatshock.position.add(source_well_pos_supp) 
+                toadd.position.add(source_well_pos_supp) 
+                toadd.save()
                 wells.append(f"{pos[1]}{pos[0]}")
 
             except SourceWellPosition.DoesNotExist:
@@ -1489,8 +1491,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             return
 
         try:
-            temp = float(hs_temperature.value)
-            dur = int(hs_duration.value)
+            temp  = float(hs_temperature.value)
+            dur   = int(hs_duration.value)
             stage = int(hs_fish_stage.value)
         except ValueError:
             hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid numerical heat shock temperature, duration and fish stage.</b>"
@@ -1507,7 +1509,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                         fish_stage=hs_fish_stage.value,
                         hs_order=len(heat_shocks)+1,
                         position=None)
-        hs.save()
+        #hs.save()
 
         wells =', '.join(add_heatshock_to_well(hs))
 
@@ -1562,8 +1564,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             add_drug_button.button_type = "success"
             return
        
-        if drug_concentration.value == '':
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid concentration or percentage.</b>"
+        if drug_concentration.value == '' or drug_duration.value == '' or drug_fish_stage.value == '':
+            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid concentration, duration or fish stage.</b>"
             drug_message.visible = True
             add_drug_button.label = "Add drug"
             add_drug_button.button_type = "success"
@@ -1571,8 +1573,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         try:
             x = float(drug_concentration.value)
+            y = int(drug_duration.value)
+            z = int(drug_fish_stage.value)
         except ValueError:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid numerical concentration.</b>"
+            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid numerical concentration, duration or fish stage.</b>"
             drug_message.visible = True
             add_drug_button.label = "Add drug"
             add_drug_button.button_type = "success"
@@ -1585,59 +1589,70 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             add_drug_button.button_type = "success"
             return
 
-        drug_exists = Drug.objects.filter(slims_id=slimsid_name.value, concentration=str(drug_concentration.value)).exists()
+        plate = experiement.source_plate
 
-        if drug_exists:
+        positions = get_well_mapping(cds_labels_source.selected.indices)
+        positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
+        print('add drug to well positions=', positions)
+        print('add drug to well positions supp=', positions_supp)   
 
-            drug_exp = Drug.objects.filter(slims_id=slimsid_name.value, 
-                                       concentration=str(drug_concentration.value),
-                                       position__well_plate__experiment__name=experiment_name.value).distinct()
-            
-            if len(drug_exp) == 0:
-                exp_qs = Experiment.objects.filter(source_plate__sourcewellposition__drugs__slims_id=slimsid_name.value,
-                                                            source_plate__sourcewellposition__drugs__concentration=drug_concentration.value).distinct()
-                print('exp_qs=', exp_qs)
-                name_list = [exp.name for exp in exp_qs]
-                drug_message.text = (f"<b style='color:orange; ; font-size:18px;'> Warning: Drug with SLIMS ID {slimsid_name.value} and concentration {drug_concentration.value}</b><br>"
-                                     f"<b style='color:orange; ; font-size:18px;'> already exists in the database for other experiment(s) {name_list} .</b><br>"
-                                     f"<b style='color:orange; ; font-size:18px;'> Use the 'Force add drug' button to add it again to this experiment.</b>")
-                drug_message.visible = True
-                add_drug_button.label = "Add drug"
-                add_drug_button.button_type = "success"
-                return
-            else:
-                drug_message.text = (f"<b style='color:orange; ; font-size:18px;'> Warning: Drug with SLIMS ID {slimsid_name.value} and concentration {drug_concentration.value}</b><br>"
-                                     f"<b style='color:orange; ; font-size:18px;'> already exists in the database for experiment {experiment_name.value}</b><br>"
-                                     f"<b style='color:orange; ; font-size:18px;'> Use the 'Add drug to other wells' button to add it to other wells for this experiment.</b>")
-                drug_message.visible = True
-                add_drug_button.label = "Add drug"
-                add_drug_button.button_type = "success"
-                return
-                
-        else:
+        wells=[]
+        for pos in positions:
+            print('pos=', pos)
+            try:
+                source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=False)
+                print('source_well_pos=', source_well_pos)
+                drugs = Drug.objects.filter(position=source_well_pos)
+                drug = Drug(slims_id=slimsid_name.value, 
+                            concentration=drug_concentration.value,
+                            duration=drug_duration.value,
+                            fish_stage=drug_fish_stage.value,
+                            order=len(drugs)+1,
+                            position=source_well_pos,
+                            derivation_name=deriv_name)
+                drug.save()
 
-            drug = Drug(slims_id=slimsid_name.value, 
-                        concentration=drug_concentration.value, 
-                        valid=valid_wellcluster.value,
-                        derivation_name=deriv_name)
-            drug.save()
+                wells.append(f"{pos[1]}{pos[0]}")
+            except SourceWellPosition.DoesNotExist:
+                print(f"Source well position {pos} does not exist in the source well plate.")
 
-            wells=', '.join(add_drug_to_well(drug))
+        for pos in positions_supp:
+            print('pos supp=', pos)
+            try:
+                source_well_pos_supp = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
+                print('source_well_pos_supp=', source_well_pos_supp)
+                drugs = Drug.objects.filter(position=source_well_pos)
+                drug = Drug(slims_id=slimsid_name.value, 
+                            concentration=drug_concentration.value,
+                            duration=drug_duration.value,
+                            fish_stage=drug_fish_stage.value,
+                            order=len(drugs)+1,
+                            position=source_well_pos,
+                            derivation_name=deriv_name)
+                drug.save()
+                wells.append(f"{pos[1]}{pos[0]}")
 
-            drug_message.text = f"<b style='color:green; ; font-size:18px;'>Added drug {deriv_name} with concentration/percentage {drug_concentration.value} in well(s) {wells}</b>"
-            drug_message.visible = True
-            add_drug_button.label = "Add drug"
-            add_drug_button.button_type = "success"
-            
-            display_drugs_source_wellplate()
-            display_drugs_dest_wellplate()
+            except SourceWellPosition.DoesNotExist:
+                print(f"Source Supp well position {pos} does not exist in the source well plate.")
 
-            print('about ot call display_drugs_source_wellplate')
-            global _programmatic_change
-            _programmatic_change = True
-            cds_labels_source.selected.indices = []
-            cds_labels_source_supp.selected.indices = []
-            _programmatic_change = False
+
+        drug_message.text = f"<b style='color:green; ; font-size:18px;'> Added drug {slimsid_name.value} with concentration {drug_concentration.value} to wells {wells}.</b>"
+        drug_message.visible = True
+        add_drug_button.label = "Add drug"
+        add_drug_button.button_type = "success"
+
+     
+        display_drugs_source_wellplate()
+        display_drugs_dest_wellplate()
+
+        global _programmatic_change
+        _programmatic_change = True
+        cds_labels_source.selected.indices = []
+        cds_labels_source_supp.selected.indices = []
+        _programmatic_change = False
+        display_drug_hs_name(None, None, cds_labels_source.selected.indices)
+
+
         print('cds_labels_source.data     ',cds_labels_source.data)
         print('cds_labels_source.indices  ',cds_labels_source.selected.indices)
         print('cds_labels_source_supp.data     ',cds_labels_source_supp.data)
@@ -1648,197 +1663,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         print('cds_labels_source_supp_drug.indices  ',cds_labels_source_supp_drug.selected.indices)
 
 
-    #___________________________________________________________________________________________
-    def force_add_drug():
-        print('------------------->>>>>>>>> force_add_drug')
-
-        pos=get_well_mapping(cds_labels_source.selected.indices)
-        pos_supp=get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
-
-        print('positions source ', pos)
-        print('positions source supp ', pos_supp)
-        print('slims id: ',slimsid_name.value)
-
-        slims_deriv = slims.fetch("Content", slims_cr.equals("cntn_id", slimsid_name.value))
-        if len(slims_deriv)==0:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid slims ID.</b>"
-            drug_message.visible = True
-            force_add_drug_button.label = "Force add drug"
-            force_add_drug_button.button_type = "success"
-            return
-        drug_deriv = slims_deriv[0].json_entity['columns']
-
-        deriv_name = ''
-        stock_id = ''
-
-        for element in drug_deriv:
-            if element["name"]=="cntn_cf_name":
-                print('derivation name=',element["value"])
-                deriv_name = element["value"]
-            if element["name"]=="cntn_fk_originalContent":
-                print('stock ID=',element["displayValue"])
-                stock_id = element["displayValue"]
-
-        slims_stock = slims.fetch("Content", slims_cr.equals("cntn_id", stock_id))
-        if len(slims_stock)==0 and 'OA_CH' not in slimsid_name.value:
-
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid slims ID.</b>"
-            drug_message.visible = True
-            force_add_drug_button.label = "Force add drug"
-            force_add_drug_button.button_type = "success"
-            return
-
-        if drug_concentration.value == '' :
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid concentration.</b>"
-            drug_message.visible = True
-            force_add_drug_button.label = "Force add drug"
-            force_add_drug_button.button_type = "success"
-            return
-
-        try:
-            x = float(drug_concentration.value)
-        except ValueError:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid numerical concentration.</b>"
-            drug_message.visible = True
-            force_add_drug_button.label = "Force add drug"
-            force_add_drug_button.button_type = "success"
-            return
-        
-        if cds_labels_source.selected.indices == [] and cds_labels_source_supp.selected.indices == []:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select a source well.</b>"
-            drug_message.visible = True
-            force_add_drug_button.label = "Force add drug"
-            force_add_drug_button.button_type = "success"
-            return
-
-        drug = Drug.objects.filter(slims_id=slimsid_name.value, 
-                                   concentration=str(drug_concentration.value),
-                                   position__well_plate__experiment__name=experiment_name.value).distinct()
-        print('drug=', drug)
-
-        if len(drug)==0:
-
-            drug = Drug(slims_id=slimsid_name.value,
-                        concentration=drug_concentration.value, 
-                        valid=valid_wellcluster.value,
-                        derivation_name=deriv_name)
-            drug.save()
-
-            wells=add_drug_to_well(drug)
-
-            drug_message.text = f"<b style='color:green; ; font-size:18px;'>Added drug {deriv_name} with concentration/percentage {drug_concentration.value} in well(s) {wells}</b>"
-            drug_message.visible = True
-            force_add_drug_button.label = "Force add drug"
-            force_add_drug_button.button_type = "success"
-            display_drugs_source_wellplate()
-            display_drugs_dest_wellplate()
-
-        else:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Drug with SLIMS ID {slimsid_name.value} and concentration {drug_concentration.value} </b><br>"
-            drug_message.text += f"<b style='color:red; ; font-size:18px;'> already exists in the database for the experiment {experiment_name.value}.</b><br>"
-            drug_message.text += f"<b style='color:red; ; font-size:18px;'> Please use 'Add drug to other wells' button.</b>"
-            drug_message.visible = True
-            force_add_drug_button.label = "Force add drug"
-            force_add_drug_button.button_type = "success"
-
-    #___________________________________________________________________________________________
-    def add_drug_other_wells(): 
-        print('------------------->>>>>>>>> add_drug_other_wells')
-        experiement   = Experiment.objects.filter(name=dropdown_exp.value).first()
-        if not experiement:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Select a valid experiment.</b>"
-            drug_message.visible = True
-            add_drug_other_wells_button.label = "Add drug to other wells"
-            add_drug_other_wells_button.button_type = "success"
-            return
-
-        slims_deriv = slims.fetch("Content", slims_cr.equals("cntn_id", slimsid_name.value))
-        if len(slims_deriv)==0:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid slims ID.</b>"
-            drug_message.visible = True
-            add_drug_other_wells_button.label = "Add drug to other wells"
-            add_drug_other_wells_button.button_type = "success"
-            return
-        drug_deriv = slims_deriv[0].json_entity['columns']
-
-     
-        stock_id = ''
-        deriv_name = ''
-
-        for element in drug_deriv:
-            if element["name"]=="cntn_cf_name": deriv_name= element["value"]
-            if element["name"]=="cntn_fk_originalContent": stock_id= element["displayValue"]
-
-        slims_stock = slims.fetch("Content", slims_cr.equals("cntn_id", stock_id))
-        if len(slims_stock)==0 and 'OA_CH' not in slimsid_name.value:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Could not find powder id {stock_id} for the derivation {slimsid_name.value} in slims</b>"
-            drug_message.visible = True
-            add_drug_other_wells_button.label = "Add drug to other wells"
-            add_drug_other_wells_button.button_type = "success"
-            return
-       
-        if drug_concentration.value == '' :
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid concentration.</b>"
-            drug_message.visible = True
-            add_drug_other_wells_button.label = "Add drug to other wells"
-            add_drug_other_wells_button.button_type = "success"
-
-        try:
-            x = float(drug_concentration.value)
-        except ValueError:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Enter a valid numerical concentration.</b>"
-            drug_message.visible = True
-            add_drug_other_wells_button.label = "Add drug to other wells"
-            add_drug_other_wells_button.button_type = "success"
-            return
-        
-        if cds_labels_source.selected.indices == [] and cds_labels_source_supp.selected.indices == []:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select at least one source well.</b>"
-            drug_message.visible = True
-            add_drug_other_wells_button.label = "Add drug to other wells"
-            add_drug_other_wells_button.button_type = "success"
-            return
-
-        drug_exists_overall = Drug.objects.filter(slims_id=slimsid_name.value, concentration=str(drug_concentration.value)).exists()
-
-        drug_exists = Drug.objects.filter(slims_id=slimsid_name.value, 
-                                          concentration=str(drug_concentration.value), 
-                                          position__well_plate__experiment__name=experiment_name.value).distinct()
-
-        print('drug_exists=', drug_exists)
-        print('drug_exists_overall=', drug_exists_overall)
-        if not drug_exists_overall:
-            drug_message.text = (f"<b style='color:orange; ; font-size:18px;'> Warning: Drug with SLIMS ID {slimsid_name.value} and concentration {drug_concentration.value}</b><br>"
-                                 f"<b style='color:orange; ; font-size:18px;'> does not already exists in the database. Use the 'Add drug' button to add the drug to the database.</b>")
-            drug_message.visible = True
-            add_drug_other_wells_button.label = "Add drug to other wells"
-            add_drug_other_wells_button.button_type = "success"
-            return
-
-        if len(drug_exists) == 0:
-            exp_qs = Experiment.objects.filter(source_plate__sourcewellposition__drugs__slims_id=slimsid_name.value,
-                                               source_plate__sourcewellposition__drugs__concentration=drug_concentration.value).distinct()
-            print('exp_qs=', exp_qs)
-            name_list = [exp.name for exp in exp_qs]
-            drug_message.text = (f"<b style='color:orange; ; font-size:18px;'> Warning: Drug with SLIMS ID {slimsid_name.value} and concentration {drug_concentration.value}</b><br>"
-                                 f"<b style='color:orange; ; font-size:18px;'> already exists in the database for other experiment(s) {name_list}.</b><br>"
-                                 f"<b style='color:orange; ; font-size:18px;'> Use the 'Force add drug' button to add it again to this experiment.</b>")
-            drug_message.visible = True
-            add_drug_other_wells_button.label = "Add drug to other wells"
-            add_drug_other_wells_button.button_type = "success"
-            return
-        
-        else:
-
-            wells=add_drug_to_well(drug_exists[0])
-
-            #drug_message.text = f"<b style='color:green; ; font-size:18px;'>Added drug {deriv_name} in well(s) {wells}</b>"
-            drug_message.text = f"<b style='color:green; ; font-size:18px;'>Added drug {deriv_name} with concentration/percentage {drug_concentration.value} in well(s) {wells}</b>"
-            drug_message.visible = True
-            add_drug_other_wells_button.label = "Add drug to other wells"
-            add_drug_other_wells_button.button_type = "success"
-            display_drugs_source_wellplate()
-            display_drugs_dest_wellplate()
 
 
 
@@ -2143,19 +1967,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         bokeh.io.curdoc().add_next_tick_callback(add_drug)
     add_drug_button.on_click(add_drug_short)
 
-    #_______________________________________________________
-    def force_add_drug_short():
-        force_add_drug_button.label = "Processing"
-        force_add_drug_button.button_type = "danger"
-        bokeh.io.curdoc().add_next_tick_callback(force_add_drug)
-    force_add_drug_button.on_click(force_add_drug_short)
-
-    #_______________________________________________________
-    def add_drug_other_wells_short():
-        add_drug_other_wells_button.label = "Processing"
-        add_drug_other_wells_button.button_type = "danger"
-        bokeh.io.curdoc().add_next_tick_callback(add_drug_other_wells)
-    add_drug_other_wells_button.on_click(add_drug_other_wells_short)
 
 
     #___________________________________________________________________________________________
@@ -2263,10 +2074,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     
 
     drug_layout = bokeh.layouts.column(bokeh.layouts.row(zoom_in_wells_dest, zoom_out_wells_dest),
-                                       bokeh.layouts.row(slimsid_name, drug_concentration),
-                                       bokeh.layouts.row(add_drug_button, add_drug_other_wells_button, force_add_drug_button, remove_drug_button),
+                                       bokeh.layouts.row(slimsid_name, drug_concentration, drug_duration, drug_fish_stage),
+                                       bokeh.layouts.row(add_drug_button, remove_drug_button),
                                        bokeh.layouts.row(hs_pre_incubation, hs_temperature, hs_duration, hs_fish_stage),
-                                       bokeh.layouts.row(add_hs_button,add_hs_other_wells_button, force_hs_drug_button, remove_hs_button),
+                                       bokeh.layouts.row(add_hs_button, remove_hs_button),
                                        bokeh.layouts.row(wellcluster_comment,bokeh.layouts.column(valid_wellcluster,valid_wellcluster_button)),
                                        bokeh.layouts.row(map_drug_button, unmap_drug_button),)
 

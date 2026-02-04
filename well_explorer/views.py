@@ -51,28 +51,32 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #model = SomiteCounter().to(device)
 model = SomiteCounter_freeze().to(device)
 checkpoint_path=r"C:\Users\helsens\software\VAST-DS\somiteCounting\checkpoints\somite_counting_best.pth"
-checkpoint = torch.load(checkpoint_path, map_location=device)
-model.load_state_dict(checkpoint["model_state_dict"])
-model.eval()
+if os.path.exists(checkpoint_path):
+    checkpoint = torch.load(checkpoint_path, map_location=device)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    model.eval()
 
 
 model_fish = FishQualityClassifier().to(device)
 checkpoint_path_fish=r"C:\Users\helsens\software\VAST-DS\somiteCounting\checkpoints\fish_quality_best.pth"
-checkpoint_fish = torch.load(checkpoint_path_fish, map_location=device)
-model_fish.load_state_dict(checkpoint_fish["model_state_dict"])
-model_fish.eval()
+if  os.path.exists(checkpoint_path_fish):
+    checkpoint_fish = torch.load(checkpoint_path_fish, map_location=device)
+    model_fish.load_state_dict(checkpoint_fish["model_state_dict"])
+    model_fish.eval()
 
 model_orientation = OrientationClassifier().to(device)
 checkpoint_path_ori=r"C:\Users\helsens\software\VAST-DS\somiteCounting\checkpoints\orientation_best.pth"
-checkpoint_orientation = torch.load(checkpoint_path_ori, map_location=device)
-model_orientation.load_state_dict(checkpoint_orientation["model_state_dict"])
-model_orientation.eval()
+if os.path.exists(checkpoint_path_ori):
+    checkpoint_orientation = torch.load(checkpoint_path_ori, map_location=device)
+    model_orientation.load_state_dict(checkpoint_orientation["model_state_dict"])
+    model_orientation.eval()
 
 
 
-
-import vast_leica_mapping as vlm
-
+try:
+    import vast_leica_mapping as vlm
+except TypeError:
+    print("Error importing vast_leica_mapping")
 LOCALPATH_CH = "/Users/helsens/Software/github/EPFL-TOP/VAST-DS/data"
 LOCALPATH_HIVE= r'Y:\raw_data\microscopy\vast\VAST-HS'
 LOCALPATH_RAID5 =r'D:\vast\VAST-HS'

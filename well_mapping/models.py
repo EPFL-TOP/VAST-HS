@@ -160,23 +160,19 @@ class Drug(models.Model):
     slims_id        = models.CharField(max_length=200, help_text="slims ID of the drug derivation.")
     derivation_name = models.CharField(max_length=200, help_text="name of the drug derivation.", default='', blank=True)
     concentration   = models.FloatField(help_text="Concentration of the drug derivation (mMol/L) or Percentage of the drug derivation (%).", default=-9999, blank=True, null=True)
-    valid           = models.BooleanField(default=True, help_text="can be imaged with VAST flag", blank=True)
-    #drug_derivation = models.ForeignKey(SlimsDrugDerivation,  default='', on_delete=models.CASCADE, blank=True, null=True)
-    position        = models.ManyToManyField(SourceWellPosition, default='', related_name='drugs', blank=True, help_text="Source well positions of the drug in the source well plate")  
+    duration        = models.FloatField(help_text="Duration of the drug treatment (minutes).", default=-9999, blank=True, null=True)
+    fish_stage      = models.IntegerField(help_text="Fish stage at drug treatment (number of somites).", default=-9999, blank=True, null=True)
+    order           = models.IntegerField(help_text="Order of the drug in the well (1 for first, 2 for second, etc.)", default=-9999, blank=True, null=True)
+    position        = models.ForeignKey(SourceWellPosition, default='', related_name='drugs', blank=True, help_text="Source well positions of the drug in the source well plate", on_delete=models.CASCADE)  
     
     def __str__(self):
        
-        #exp_names = {
-        #    pos.well_plate.experiment.name
-        #    for pos in self.position.all()
-        #}
-        # turn that set into a comma‑separated string
-        #exp_list = ", ".join(sorted(exp_names)) if exp_names else "(no experiment)"
+
         return (
             f"derivation_name={self.derivation_name} "
             f"slims_id={self.slims_id} "
             f"concentration={self.concentration} "
-            #f"experiment={exp_list}"
+            f"order={self.order} "
         )
 
 
@@ -186,23 +182,17 @@ class HeatShock(models.Model):
     temperature    = models.FloatField(help_text="Temperature of the heatshock (°C).", default=-9999, blank=True, null=True)
     duration       = models.FloatField(help_text="Duration of the heatshock (minutes).", default=-9999, blank=True, null=True)
     fish_stage     = models.IntegerField(help_text="Fish stage at heatshock (number of somites).", default=-9999, blank=True, null=True)
-    valid          = models.BooleanField(default=True, help_text="can be imaged with VAST flag", blank=True)
-    position       = models.ForeignKey(SourceWellPosition, default='', related_name='heatshock',  help_text="Source well position of the heatshock in the source well plate", on_delete=models.CASCADE)  
-    hs_order       = models.IntegerField(help_text="Order of the heatshock in the well (1 for first, 2 for second, etc.)", default=-9999, blank=True, null=True)
+    order          = models.IntegerField(help_text="Order of the heatshock in the well (1 for first, 2 for second, etc.)", default=-9999, blank=True, null=True)
+    position       = models.ForeignKey(SourceWellPosition, default='', related_name='heatshock',  blank=True, help_text="Source well position of the heatshock in the source well plate", on_delete=models.CASCADE)  
+
     def __str__(self):
-        #exp_names = {
-        #    pos.well_plate.experiment.name
-        #    for pos in self.position.all()
-        #}
-        # turn that set into a comma‑separated string
-        #exp_list = ", ".join(sorted(exp_names)) if exp_names else "(no experiment)"
+
         return (
             f"pre_incubation={self.pre_incubation} "
             f"temperature={self.temperature} "
             f"duration={self.duration} "
             f"fish_stage={self.fish_stage} "
-            f"hs_order={self.hs_order} "
-            #f"experiment={exp_list}"
+            f"order={self.order} "
         )
     
 #___________________________________________________________________________________________
