@@ -175,7 +175,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     remove_drug_button = bokeh.models.Button(label="Remove last drug",  button_type="danger")
 
     hs_pre_incubation = bokeh.models.Select(title="Pre-incubation:", value="No", options=["Yes", "No"], width=90)
-    hs_temperature    = bokeh.models.TextInput(title="Temperature (°C):", value="", width=900)
+    hs_temperature    = bokeh.models.TextInput(title="Temperature (°C):", value="", width=90)
     hs_duration       = bokeh.models.TextInput(title="Duration (min):", value="", width=90)
     hs_fish_stage     = bokeh.models.TextInput(title="Fish Stage:", value="", width=90)
     hs_message        = bokeh.models.Div(text='', width=600, height=50, visible=False)
@@ -1215,6 +1215,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 f"<li style='color:navy; font-size:14px; "
                 f"margin-bottom:4px;'>{h}</li>"
                 for h in hs)
+            items_html_hs = f"<ol>{items_html_hs}</ol>"
             
             drug_message.text = f"""
             <b style='color:green; font-size:18px;'>
