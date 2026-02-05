@@ -1648,11 +1648,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
 
-        global _programmatic_change
-        _programmatic_change = True
-        cds_labels_source.selected.indices = []
-        cds_labels_source_supp.selected.indices = []
-        _programmatic_change = False
+        #global _programmatic_change
+        #_programmatic_change = True
+        #cds_labels_source.selected.indices = []
+        #cds_labels_source_supp.selected.indices = []
+        #_programmatic_change = False
 
 
         print('cds_labels_source.data     ',cds_labels_source.data)
