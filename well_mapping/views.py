@@ -2046,13 +2046,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         for pos in positions:
             print('pos=', pos)
             position = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=False)
-            last_hs = position.heatshocks.order_by('-order').first()
+            last_hs = position.heatshock.order_by('-order').first()
             if last_hs:
                 last_hs.delete()
         for pos in positions_supp:
             print('pos supp=', pos)
             position = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
-            last_hs = position.heatshocks.order_by('-order').first()
+            last_hs = position.heatshock.order_by('-order').first()
             if last_hs:
                 last_hs.delete()
 
