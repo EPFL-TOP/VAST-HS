@@ -115,8 +115,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     cds_labels_source = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[]))
     cds_labels_source_supp = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[]))
 
-    cds_labels_source_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], drug=[]))
-    cds_labels_source_supp_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], drug=[]))
+    cds_labels_source_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], drug=[], hs=[]))
+    cds_labels_source_supp_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], drug=[], hs=[]))
 
 
     cds_labels_dest_1_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[]))
@@ -279,6 +279,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             @drug
         </div>
 
+           <div style="color:#2563eb; font-weight:bold; font-size:15px;">
+            HS
+        </div>
+        <div style="margin-left:5px; font-size:13px;">
+            @hs
+        </div>
+     
         <div style="margin-top:6px; color:#2563eb; font-weight:bold; font-size:15px;">
             Position
         </div>
@@ -946,30 +953,35 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         y_filled = []
         size_filled = []
         drug_filled = []
+        hs_filled = []
         for well_pos in source_well_positions:
             drug = Drug.objects.filter(position=well_pos)
-            if len(drug) != 0:
+            hs = HeatShock.objects.filter(position=well_pos)
+            if len(drug) != 0 or len(hs) != 0:
                 x_filled.append(well_pos.position_col)
                 y_filled.append(well_pos.position_row)
                 size_filled.append(cds_labels_source.data['size'][cds_labels_source.data['x'].index(well_pos.position_col)])
                 #drug_filled.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
-                drug_filled.append('<br>'.join([f'{str(d.derivation_name)} - {d.concentration}µMol' for d in drug]))
-        cds_labels_source_drug.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled}
+                drug_filled.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol' for d in drug]))
+                hs_filled.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites {"PI" if h.pre_incubation else ""}' for h in hs]))
+        cds_labels_source_drug.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled, 'hs':hs_filled}
 
         x_supp = []
         y_supp = []
         size_supp = []
         drug_supp = []
+        hs_supp = []
         for well_pos in source_well_positions_supp:
             drug = Drug.objects.filter(position=well_pos)
-            if len(drug) != 0:
+            hs = HeatShock.objects.filter(position=well_pos)
+            if len(drug) != 0 or len(hs) != 0:
                 x_supp.append(well_pos.position_col)
                 y_supp.append(well_pos.position_row)
                 size_supp.append(cds_labels_source_supp.data['size'][cds_labels_source_supp.data['x'].index(well_pos.position_col)])
                 #drug_supp.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
-                drug_supp.append('<br>'.join([f'{str(d.derivation_name)} - {d.concentration}µMol' for d in drug]))
-
-        cds_labels_source_supp_drug.data={'x':x_supp, 'y':y_supp, 'size':size_supp,'drug':drug_supp}
+                drug_supp.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol' for d in drug]))
+                hs_supp.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites {"PI" if h.pre_incubation else ""}' for h in hs]))
+        cds_labels_source_supp_drug.data={'x':x_supp, 'y':y_supp, 'size':size_supp,'drug':drug_supp, 'hs':hs_supp}
 
 
     #___________________________________________________________________________________________
@@ -1553,15 +1565,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         display_drugs_dest_wellplate()
 
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
-
-
-
-
-
-
-
-
-
 
 
     #___________________________________________________________________________________________
