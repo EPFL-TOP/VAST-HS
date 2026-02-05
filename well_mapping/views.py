@@ -1205,11 +1205,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             drug_message.text = f"<b style='color:red; ; font-size:18px;'> No drug nor heatshock in selected well {well_position[0][1]}{well_position[0][0]}.</b>"
 
         else:
-            items_html_drugs = "<ol>".join(
+            items_html_drugs = "".join(
                 f"<li style='color:navy; font-size:14px; "
                 f"margin-bottom:4px;'>{drug}</li>"
                 for drug in drugs)
-            items_html_drugs+= "</ol>"
+            items_html_drugs = f"<ol>{items_html_drugs}</ol>"
 
             items_html_hs = "".join(
                 f"<li style='color:navy; font-size:14px; "
@@ -1646,12 +1646,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         display_drugs_source_wellplate()
         display_drugs_dest_wellplate()
 
-        global _programmatic_change
-        _programmatic_change = True
+        #global _programmatic_change
+        #_programmatic_change = True
         cds_labels_source.selected.indices = []
         cds_labels_source_supp.selected.indices = []
-        _programmatic_change = False
-        #display_drug_hs_name(None, None, cds_labels_source.selected.indices)
+        #_programmatic_change = False
 
 
         print('cds_labels_source.data     ',cds_labels_source.data)
