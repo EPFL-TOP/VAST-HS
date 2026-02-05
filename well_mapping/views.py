@@ -167,7 +167,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     mapping_message   = bokeh.models.Div(visible=False)   
 
     slimsid_name       = bokeh.models.TextInput(title="Slims ID: (eg: OA_DS_00024)", value='' )
-    drug_concentration = bokeh.models.TextInput(title="Concentration (µMol) or Percentage (%)", value='', width=200)
+    drug_concentration = bokeh.models.TextInput(title="Concentration (µMol/%)", value='', width=200)
     drug_fish_stage    = bokeh.models.TextInput(title="Fish Stage:", value="", width=110)
     drug_duration      = bokeh.models.TextInput(title="Duration (min):", value="", width=110)
     drug_message       = bokeh.models.Div(visible=False)
@@ -211,8 +211,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     r_source=plot_wellplate_source.circle('x', 'y', 
                                  size='size',
                                  source=cds_labels_source_drug, 
-                                 fill_alpha=0.5,line_width=3,
-                                 line_color='black', fill_color="black",
+                                 fill_alpha=0.5,line_width=4,
+                                 line_color='black', #fill_color="black",
                                  selection_fill_color="red",    # when selected
                                  selection_line_color="firebrick",
                                  selection_fill_alpha=0.7,
@@ -1463,12 +1463,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     def add_heat_shock():
         print('------------------->>>>>>>>> add_heat_shock')
 
-        pos=get_well_mapping(cds_labels_source.selected.indices)
-        pos_supp=get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
-
-        print('positions source ', pos)
-        print('positions source supp ', pos_supp)
-
         if cds_labels_source.selected.indices == [] and cds_labels_source_supp.selected.indices == []:
             hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Need to select at least a source well.</b>"
             hs_message.visible = True
@@ -1502,31 +1496,71 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             add_hs_button.button_type = "success"
             return
         
+        plate = experiement.source_plate
 
-        heat_shocks = HeatShock.objects.filter(position__well_plate=experiement.source_plate)
-        print('heat_shocks=', heat_shocks)
-        hs = HeatShock(temperature=hs_temperature.value,
-                        duration=hs_duration.value,
-                        fish_stage=hs_fish_stage.value,
-                        hs_order=len(heat_shocks)+1,
-                        position=None)
-        #hs.save()
+        positions = get_well_mapping(cds_labels_source.selected.indices)
+        positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
+        print('add drug to well positions=', positions)
+        print('add drug to well positions supp=', positions_supp)   
 
-        wells =', '.join(add_heatshock_to_well(hs))
+        wells=[]
+        for pos in positions:
+            print('pos=', pos)
+            try:
+                source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=False)
+                print('source_well_pos=', source_well_pos)
+                heatshocks = HeatShock.objects.filter(position=source_well_pos)
+                heatshock = HeatShock(pre_incubation=hs_pre_incubation.value,
+                                        temperature=hs_temperature.value,
+                                        duration=hs_duration.value,
+                                        fish_stage=hs_fish_stage.value,
+                                        order=len(heatshocks)+1,
+                                        position=source_well_pos)
+                heatshock.save()
 
-        hs_message.text = f"<b style='color:green; ; font-size:18px;'> Added heat shock {hs_temperature.value}C for {hs_duration.value}min at fish stage {hs_fish_stage.value} to wells {wells}.</b>"
-        hs_message.visible = True
-        add_hs_button.label = "Add heat shock"
-        add_hs_button.button_type = "success"
+                wells.append(f"{pos[1]}{pos[0]}")
+            except SourceWellPosition.DoesNotExist:
+                print(f"Source well position {pos} does not exist in the source well plate.")
+
+
+        for pos in positions_supp:
+            print('pos supp=', pos)
+            try:
+                source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
+                print('source_well_pos supp=', source_well_pos)
+                heatshocks = HeatShock.objects.filter(position=source_well_pos)
+                heatshock = HeatShock(pre_incubation=hs_pre_incubation.value,
+                                        temperature=hs_temperature.value,
+                                        duration=hs_duration.value,
+                                        fish_stage=hs_fish_stage.value,
+                                        order=len(heatshocks)+1,
+                                        position=source_well_pos)
+                heatshock.save()
+
+                wells.append(f"{pos[1]}{pos[0]} (supp)")
+            except SourceWellPosition.DoesNotExist:
+                print(f"Source well position {pos} does not exist in the source well plate.")
+
+
+        #drug_message.text = f"<b style='color:green; ; font-size:18px;'> Added drug {slimsid_name.value} with concentration {drug_concentration.value} to wells {wells}.</b>"
+        #drug_message.visible = True
+        #add_drug_button.label = "Add drug"
+        #add_drug_button.button_type = "success"
 
      
+        display_drugs_source_wellplate()
+        display_drugs_dest_wellplate()
 
-        global _programmatic_change
-        _programmatic_change = True
-        cds_labels_source.selected.indices = []
-        cds_labels_source_supp.selected.indices = []
-        _programmatic_change = False
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
+
+
+
+
+
+
+
+
+
 
 
     #___________________________________________________________________________________________
@@ -1637,10 +1671,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 print(f"Source Supp well position {pos} does not exist in the source well plate.")
 
 
-        drug_message.text = f"<b style='color:green; ; font-size:18px;'> Added drug {slimsid_name.value} with concentration {drug_concentration.value} to wells {wells}.</b>"
-        drug_message.visible = True
-        add_drug_button.label = "Add drug"
-        add_drug_button.button_type = "success"
+        #drug_message.text = f"<b style='color:green; ; font-size:18px;'> Added drug {slimsid_name.value} with concentration {drug_concentration.value} to wells {wells}.</b>"
+        #drug_message.visible = True
+        #add_drug_button.label = "Add drug"
+        #add_drug_button.button_type = "success"
 
      
         display_drugs_source_wellplate()
