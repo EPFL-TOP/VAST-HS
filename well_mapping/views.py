@@ -2027,6 +2027,41 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     index_source = bokeh.models.ColumnDataSource(data=dict(index=[]))  # Data source for the image
     tap_tool = bokeh.models.TapTool(callback=bokeh.models.CustomJS(args=dict(other_source=index_source),code=select_tap_callback()))
 
+    #___________________________________________________________________________________________
+    def remove_hs():
+        print('------------------->>>>>>>>> remove_hs')
+
+        if cds_labels_source.selected.indices == [] and cds_labels_source_supp.selected.indices == []:
+            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Must select one well to remove last heat shock from it</b>"
+            hs_message.visible = True
+            return
+        
+        positions = get_well_mapping(cds_labels_source.selected.indices)
+        positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
+
+        experiement   = Experiment.objects.filter(name=dropdown_exp.value).first()
+        plate = experiement.source_plate
+
+
+        for pos in positions:
+            print('pos=', pos)
+            position = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=False)
+            last_hs = position.heatshocks.order_by('-order').first()
+            if last_hs:
+                last_hs.delete()
+        for pos in positions_supp:
+            print('pos supp=', pos)
+            position = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
+            last_hs = position.heatshocks.order_by('-order').first()
+            if last_hs:
+                last_hs.delete()
+
+
+        display_drugs_source_wellplate()
+        display_drugs_dest_wellplate()
+
+        display_drug_hs_name(None, None, cds_labels_source.selected.indices)
+    remove_hs_button.on_click(remove_hs)
 
     #___________________________________________________________________________________________
     def remove_drug():
