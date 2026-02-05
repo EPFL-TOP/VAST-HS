@@ -2022,24 +2022,18 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 last_drug.delete()
 
 
-
         display_drugs_source_wellplate()
         display_drugs_dest_wellplate()
 
-
-        #drug_message.text = f"<b style='color:green; ; font-size:18px;'> Removed last drug in wells {positions + positions_supp}</b>"
-        #drug_message.visible = True
-
-
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
 
-        global _programmatic_change
-        _programmatic_change = True
-        cds_labels_source.selected.indices = []
-        cds_labels_source_supp.selected.indices = []
-        cds_labels_source_drug.selected.indices = []
-        cds_labels_source_supp_drug.selected.indices = []
-        _programmatic_change = False
+        #global _programmatic_change
+        #_programmatic_change = True
+        #cds_labels_source.selected.indices = []
+        #cds_labels_source_supp.selected.indices = []
+        #cds_labels_source_drug.selected.indices = []
+        #cds_labels_source_supp_drug.selected.indices = []
+        #_programmatic_change = False
 
 
     remove_drug_button.on_click(remove_drug)
