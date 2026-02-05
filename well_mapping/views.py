@@ -167,7 +167,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     mapping_message   = bokeh.models.Div(visible=False)   
 
     slimsid_name       = bokeh.models.TextInput(title="Slims ID: (eg: OA_DS_00024)", value='' )
-    drug_concentration = bokeh.models.TextInput(title="Concentration (µMol/%)", value='', width=200)
+    drug_concentration = bokeh.models.TextInput(title="Conc. (µMol/%)", value='', width=100)
     drug_fish_stage    = bokeh.models.TextInput(title="Fish Stage:", value="", width=110)
     drug_duration      = bokeh.models.TextInput(title="Duration (min):", value="", width=110)
     drug_message       = bokeh.models.Div(visible=False)
@@ -1510,7 +1510,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=False)
                 print('source_well_pos=', source_well_pos)
                 heatshocks = HeatShock.objects.filter(position=source_well_pos)
-                heatshock = HeatShock(pre_incubation=hs_pre_incubation.value,
+                heatshock = HeatShock(pre_incubation=True if hs_pre_incubation.value=='Yes' else False,
                                         temperature=hs_temperature.value,
                                         duration=hs_duration.value,
                                         fish_stage=hs_fish_stage.value,
