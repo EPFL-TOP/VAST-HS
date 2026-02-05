@@ -169,9 +169,11 @@ class Drug(models.Model):
        
 
         return (
-            f"derivation_name={self.derivation_name} "
-            f"slims_id={self.slims_id} "
+            f"drug={self.derivation_name} "
+            f"slims={self.slims_id} "
             f"concentration={self.concentration} "
+            f"duration={self.duration} "
+            f"fish-stage={self.fish_stage} "
             f"order={self.order} "
         )
 
@@ -188,10 +190,10 @@ class HeatShock(models.Model):
     def __str__(self):
 
         return (
-            f"pre_incubation={self.pre_incubation} "
+            f"pre-incubation={self.pre_incubation} "
             f"temperature={self.temperature} "
             f"duration={self.duration} "
-            f"fish_stage={self.fish_stage} "
+            f"fish-stage={self.fish_stage} "
             f"order={self.order} "
         )
     

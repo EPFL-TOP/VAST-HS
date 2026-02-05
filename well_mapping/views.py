@@ -1646,11 +1646,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         display_drugs_source_wellplate()
         display_drugs_dest_wellplate()
 
-        #global _programmatic_change
-        #_programmatic_change = True
+        display_drug_hs_name(None, None, cds_labels_source.selected.indices)
+
+        global _programmatic_change
+        _programmatic_change = True
         cds_labels_source.selected.indices = []
         cds_labels_source_supp.selected.indices = []
-        #_programmatic_change = False
+        _programmatic_change = False
 
 
         print('cds_labels_source.data     ',cds_labels_source.data)
@@ -1995,45 +1997,31 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     def remove_drug():
 
         if cds_labels_source.selected.indices == [] and cds_labels_source_supp.selected.indices == []:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Must select one drug to be removed</b>"
+            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Must select one well to remove last drug from it</b>"
             drug_message.visible = True
             return
         
-        if cds_labels_source.selected.indices != [] and cds_labels_source_supp.selected.indices != []:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Must select only from source plate or supp plate not both</b>"
-            drug_message.visible = True
-            return
-
-        if len(cds_labels_source.selected.indices) + len(cds_labels_source_supp.selected.indices) >1:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Must select only one well to remove drugs</b>"
-            drug_message.visible = True
-            return
-
         positions = get_well_mapping(cds_labels_source.selected.indices)
         positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
-        is_supp = False
-        if len(positions_supp)==1: 
-            positions=positions_supp
-            is_supp = True
 
         experiement   = Experiment.objects.filter(name=dropdown_exp.value).first()
         plate = experiement.source_plate
 
 
-        source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=positions[0][0], position_row=positions[0][1], is_supp=is_supp)
-        print('source_well_pos=', source_well_pos)
-        drugs = source_well_pos.drugs.all()
-        drugs_name = ', '.join([f'{drug.derivation_name} {drug.slims_id}' for drug in drugs])
+        for pos in positions:
+            print('pos=', pos)
+            position = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=is_supp)
+            last_drug = position.drugs.order_by('-order').first()
+            if last_drug:
+                last_drug.delete()
+        for pos in positions_supp:
+            print('pos supp=', pos)
+            position = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
+            last_drug = position.drugs.order_by('-order').first()
+            if last_drug:
+                last_drug.delete()
 
-        if len(drugs) == 0:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: No drug in the selected source well.</b>"
-            drug_message.visible = True
-            return
 
-
-        for drug in drugs:
-
-            source_well_pos.remove_drug(drug)
 
         display_drugs_source_wellplate()
         display_drugs_dest_wellplate()
@@ -2042,7 +2030,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         cds_labels_source_drug.selected.indices = []
         cds_labels_source_supp_drug.selected.indices = []
 
-        drug_message.text = f"<b style='color:green; ; font-size:18px;'> Removed drug(s) {drugs_name}</b>"
+        drug_message.text = f"<b style='color:green; ; font-size:18px;'> Removed last drug in wells {positions + positions_supp}</b>"
         drug_message.visible = True
 
     remove_drug_button.on_click(remove_drug)
