@@ -200,10 +200,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     plot_wellplate_source.circle('x', 'y', 
                                  size='size',
                                  source=cds_labels_source, 
-                                 line_color='blue', fill_color="white",
-                                 selection_fill_color="orange",    # when selected
-                                 selection_line_color="firebrick",
-                                 selection_fill_alpha=0.9,
+                                 line_color='blue', 
+                                 fill_color="white",
+                                 selection_fill_color="red",
+                                 selection_line_color="black",
+                                 selection_fill_alpha=0.7,
                                  nonselection_fill_alpha=0.0,      # style for non-selected
                                  nonselection_fill_color="white",
                                  nonselection_line_color="blue",)
@@ -211,12 +212,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     r_source=plot_wellplate_source.circle('x', 'y', 
                                  size='size',
                                  source=cds_labels_source_drug, 
-                                 fill_alpha=0.5,line_width=4,
+                                 fill_alpha=0.0,
+                                 line_width=4,
                                  line_color='black', #fill_color="black",
                                  selection_fill_color="red",    # when selected
-                                 selection_line_color="firebrick",
+                                 selection_line_color="black",
                                  selection_fill_alpha=0.7,
-                                 nonselection_fill_alpha=0.0,      # style for non-selected
+                                 #nonselection_fill_alpha=0.0,      # style for non-selected
                                  #nonselection_fill_color="black",
                                  nonselection_line_color="black",)
 
