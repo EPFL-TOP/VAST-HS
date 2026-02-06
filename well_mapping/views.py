@@ -217,7 +217,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                  selection_line_color="firebrick",
                                  selection_fill_alpha=0.7,
                                  nonselection_fill_alpha=0.0,      # style for non-selected
-                                 nonselection_fill_color="black",
+                                 #nonselection_fill_color="black",
                                  nonselection_line_color="black",)
 
     labels = bokeh.models.LabelSet(x = 'x',y = 'y', text = 'drug',
@@ -966,7 +966,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 size_filled.append(cds_labels_source.data['size'][cds_labels_source.data['x'].index(well_pos.position_col)])
                 #drug_filled.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
                 drug_filled.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
-                hs_filled.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites {"PI" if h.pre_incubation else ""}' for h in hs]))
+                hs_filled.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites{" - PI" if h.pre_incubation else ""}' for h in hs]))
         cds_labels_source_drug.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled, 'hs':hs_filled}
 
         x_supp = []
@@ -983,7 +983,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 size_supp.append(cds_labels_source_supp.data['size'][cds_labels_source_supp.data['x'].index(well_pos.position_col)])
                 #drug_supp.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
                 drug_supp.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
-                hs_supp.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}mins - {h.fish_stage}somites {"PI" if h.pre_incubation else ""}' for h in hs]))
+                hs_supp.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}mins - {h.fish_stage}somites{" - PI" if h.pre_incubation else ""}' for h in hs]))
         cds_labels_source_supp_drug.data={'x':x_supp, 'y':y_supp, 'size':size_supp,'drug':drug_supp, 'hs':hs_supp}
 
 
@@ -1208,6 +1208,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         if len(new) > 1:
             drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not display more than 1 well drug or hs info.</b>"
             drug_message.visible = True
+            add_drug_button.label = "Add drug"
+            add_drug_button.button_type = "success"
+            add_hs_button.label = "Add heatshock"
+            add_hs_button.button_type = "success"
             return
         well_position = get_well_mapping(new)
         source_well_positions = SourceWellPosition.objects.filter(well_plate=source_well_plate, is_supp=False, position_col=well_position[0][0], position_row=well_position[0][1])
