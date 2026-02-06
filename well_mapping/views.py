@@ -1204,6 +1204,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             mapping_message.visible = False
             cds_labels_dest_2_mapping.data = {'x':[], 'y':[], 'size':[]}
             cds_labels_dest_mapping.data = {'x':[], 'y':[], 'size':[]}
+            #cds_labels_source_drug.selected.indices = []
             return
         if len(new) > 1:
             drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not display more than 1 well drug or hs info.</b>"
