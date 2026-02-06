@@ -270,6 +270,9 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     hover_grid_source = bokeh.models.HoverTool(
     renderers=[r_source, r_source_supp],
 
+    #tooltips="""
+    #<div style="font-size:14px;">
+    #"""
     tooltips="""
     <div style="font-size:14px;">
         <div style="color:#2563eb; font-weight:bold; font-size:15px;">
@@ -962,7 +965,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 y_filled.append(well_pos.position_row)
                 size_filled.append(cds_labels_source.data['size'][cds_labels_source.data['x'].index(well_pos.position_col)])
                 #drug_filled.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
-                drug_filled.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol' for d in drug]))
+                drug_filled.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
                 hs_filled.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites {"PI" if h.pre_incubation else ""}' for h in hs]))
         cds_labels_source_drug.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled, 'hs':hs_filled}
 
@@ -979,8 +982,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 y_supp.append(well_pos.position_row)
                 size_supp.append(cds_labels_source_supp.data['size'][cds_labels_source_supp.data['x'].index(well_pos.position_col)])
                 #drug_supp.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
-                drug_supp.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol' for d in drug]))
-                hs_supp.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites {"PI" if h.pre_incubation else ""}' for h in hs]))
+                drug_supp.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
+                hs_supp.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}mins - {h.fish_stage}somites {"PI" if h.pre_incubation else ""}' for h in hs]))
         cds_labels_source_supp_drug.data={'x':x_supp, 'y':y_supp, 'size':size_supp,'drug':drug_supp, 'hs':hs_supp}
 
 
