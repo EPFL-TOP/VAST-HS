@@ -277,11 +277,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     #"""
     tooltips="""
     <div style="font-size:14px;">
-        <div style="color:#2563eb; font-weight:bold; font-size:15px;">
-            Position
-        </div>
-        <div style="margin-left:5px; font-size:13px;">
-            (@x, @y)
+        <div style="font-size:13px;">
+            <span style="color:#2563eb; font-weight:bold; font-size:15px;">
+                Position:
+            </span>
+            <span style="margin-left:6px;">
+                (@x, @y)
+            </span>
         </div>
     
         <div style="color:#2563eb; font-weight:bold; font-size:15px;">
@@ -335,7 +337,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     plot_wellplate_dest.circle('x', 'y', 
                                  size='size',
                                  source=cds_labels_dest_1_drug, 
-                                 fill_alpha=0.5,line_width=3,
+                                 fill_alpha=0.2,line_width=3,
                                  line_color='black', fill_color="black",
                                  selection_fill_color="red",    # when selected
                                  selection_line_color="firebrick",
@@ -360,7 +362,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     plot_wellplate_dest_2.circle('x', 'y', 
                                  size='size',
                                  source=cds_labels_dest_2_drug, 
-                                 fill_alpha=0.5,line_width=3,
+                                 fill_alpha=0.2,line_width=3,
                                  line_color='black', fill_color="black",
                                  selection_fill_color="red",    # when selected
                                  selection_line_color="firebrick",

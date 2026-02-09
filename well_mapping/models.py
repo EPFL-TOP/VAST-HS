@@ -217,15 +217,15 @@ class DestWellProperties(models.Model):
     
 
     # 1) Before a position is deleted, stash its drugs on the instance
-@receiver(pre_delete, sender=SourceWellPosition)
-def _stash_drugs_for_cleanup(sender, instance, **kwargs):
-    # pull them off the DB so we have a Python list to work with later
-    instance._drugs_to_check = list(instance.drugs.all())
+#@receiver(pre_delete, sender=SourceWellPosition)
+#def _stash_drugs_for_cleanup(sender, instance, **kwargs):
+#    # pull them off the DB so we have a Python list to work with later
+#    instance._drugs_to_check = list(instance.drugs.all())
 
 # 2) After the position (and its join‐table rows) is gone, clean up orphans
-@receiver(post_delete, sender=SourceWellPosition)
-def _cleanup_orphan_drugs(sender, instance, **kwargs):
-    for drug in getattr(instance, '_drugs_to_check', []):
-        # if this was the drug’s last position, we can delete it
-        if not drug.position.exists():
-            drug.delete()
+#@receiver(post_delete, sender=SourceWellPosition)
+#def _cleanup_orphan_drugs(sender, instance, **kwargs):
+#    for drug in getattr(instance, '_drugs_to_check', []):
+#        # if this was the drug’s last position, we can delete it
+#        if not drug.position.exists():
+#            drug.delete()
