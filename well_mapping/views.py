@@ -278,6 +278,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     tooltips="""
     <div style="font-size:14px;">
         <div style="color:#2563eb; font-weight:bold; font-size:15px;">
+            Position
+        </div>
+        <div style="margin-left:5px; font-size:13px;">
+            (@x, @y)
+        </div>
+    
+        <div style="color:#2563eb; font-weight:bold; font-size:15px;">
             Drugs
         </div>
         <div style="margin-left:5px; font-size:13px;">
@@ -291,12 +298,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             @hs
         </div>
      
-        <div style="margin-top:6px; color:#2563eb; font-weight:bold; font-size:15px;">
-            Position
-        </div>
-        <div style="margin-left:5px; font-size:13px;">
-            (@x, @y)
-        </div>
+
     </div>
 
     """
