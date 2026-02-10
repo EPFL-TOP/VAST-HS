@@ -205,6 +205,9 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         line_color="blue",
         fill_alpha=0.0,
         nonselection_fill_alpha=0.1,
+        selection_fill_color = "red",
+        selection_fill_alpha = 0.7,
+        selection_line_color = "black",
         view=bokeh.models.CDSView(
             filter=bokeh.models.BooleanFilter([not v for v in cds_labels_source.data['has_drug']])
         )
@@ -217,16 +220,16 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         fill_alpha=0.0,
         line_width=4,
         line_color="black",
+                selection_fill_color = "red",
+        selection_fill_alpha = 0.7,
+        selection_line_color = "black",
         nonselection_line_alpha=0.2,
         view=bokeh.models.CDSView(
             filter=bokeh.models.BooleanFilter(cds_labels_source.data['has_drug'])
         )
     )
 
-    for r in (r_empty, r_drug):
-        r.selection_fill_color = "red"
-        r.selection_fill_alpha = 0.7
-        r.selection_line_color = "black"
+
 
 
 #    plot_wellplate_source.circle('x', 'y', 
