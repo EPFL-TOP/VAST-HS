@@ -792,7 +792,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             plot_wellplate_source.axis.visible = True
 
         elif '24' in new:
-            print('24 well plate')
             plot_wellplate_source.x_range.factors = x_24
             plot_wellplate_source.y_range.factors = y_24
             plot_wellplate_source.title.text = "24 well plate"
@@ -803,6 +802,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             cds_labels_source.data = {'x':[], 'y':[], 'size':[], 'has_drug':[], 'drug':[], 'hs':[]}
             plot_wellplate_source.title.text = ""
             plot_wellplate_source.axis.visible = False
+        print('cds_labels_source.data=', cds_labels_source.data)
     dropdown_well_plate_source.on_change("value", load_well_plate_source)
 
 
