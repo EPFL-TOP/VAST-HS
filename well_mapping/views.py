@@ -893,12 +893,14 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 has_drug_list.append(False)
                 drug_list.append('')
                 hs_list.append('')    
-        data = cds_labels_source.data
-        data['drug'] = drug_list
-        data['hs'] = hs_list
-        data['has_drug'] = has_drug_list
-        cds_labels_source.data = data
-
+        #data = cds_labels_source.data
+       
+        cds_labels_source.data = dict(x=cds_labels_source.data['x'],
+                                      y=cds_labels_source.data['y'],
+                                        size=cds_labels_source.data['size'],
+                                        has_drug=has_drug_list,
+                                        drug=drug_list,
+                                        hs=hs_list)
 
         drug_supp = []
         hs_supp = []
@@ -914,11 +916,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 has_drug_supp.append(False)
                 drug_supp.append('')
                 hs_supp.append('')
-        data_supp = cds_labels_source_supp.data
-        data_supp['drug'] = drug_supp
-        data_supp['hs'] = hs_supp
-        data_supp['has_drug'] = has_drug_supp
-        cds_labels_source_supp.data = data_supp
+
+        cds_labels_source_supp.data = dict(x=cds_labels_source_supp.data['x'],
+                                          y=cds_labels_source_supp.data['y'],
+                                          size=cds_labels_source_supp.data['size'],
+                                          has_drug=has_drug_supp,
+                                          drug=drug_supp,
+                                          hs=hs_supp)
         update_views()
 
 
