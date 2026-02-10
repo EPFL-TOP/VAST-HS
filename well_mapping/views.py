@@ -197,6 +197,12 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     slims = Slims(name="slims", url=accessk.end_point, username=accessk.user_name, password=accessk.password)
 
+    empty_filter = bokeh.models.BooleanFilter([])
+    drug_filter = bokeh.models.BooleanFilter([])
+    view_empty = bokeh.models.CDSView(source=cds_labels_source, filters=[empty_filter])
+    view_drug  = bokeh.models.CDSView(source=cds_labels_source, filters=[drug_filter])
+
+
     r_empty = plot_wellplate_source.circle(
         'x', 'y',
         size='size',
@@ -208,9 +214,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         selection_fill_color = "red",
         selection_fill_alpha = 0.7,
         selection_line_color = "black",
-        view=bokeh.models.CDSView(
-            filter=bokeh.models.BooleanFilter([not v for v in cds_labels_source.data['has_drug']])
-        )
+        view=view_empty,
     )
 
     r_drug = plot_wellplate_source.circle(
@@ -220,13 +224,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         fill_alpha=0.0,
         line_width=4,
         line_color="black",
-                selection_fill_color = "red",
+        selection_fill_color = "red",
         selection_fill_alpha = 0.7,
         selection_line_color = "black",
         nonselection_line_alpha=0.2,
-        view=bokeh.models.CDSView(
-            filter=bokeh.models.BooleanFilter(cds_labels_source.data['has_drug'])
-        )
+        view=view_drug,
     )
 
 
