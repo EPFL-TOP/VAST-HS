@@ -413,6 +413,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                  selection_fill_alpha=0.7,
                                  nonselection_fill_alpha=0.0)
 
+    #
+    def update_views():
+        has_drug = cds_labels_source.data['has_drug']
+
+        empty_filter.booleans = [not v for v in has_drug]
+        drug_filter.booleans  = has_drug
+
     #___________________________________________________________________________________________
     def get_well_mapping(indices, issupp=False, issource=True):
         print('------------------->>>>>>>>> get_well_mapping')
@@ -774,14 +781,14 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             plot_wellplate_source.x_range.factors = x_96
             plot_wellplate_source.y_range.factors = y_96
             plot_wellplate_source.title.text = "96 well plate"
-            cds_labels_source.data = dict(source_labels_96.data, size=[50*NZOOM_WELLS_SOURCE]*len(source_labels_96.data['x']))
+            cds_labels_source.data = dict(source_labels_96.data, size=[50*NZOOM_WELLS_SOURCE]*len(source_labels_96.data['x']), has_drug=[False]*len(source_labels_96.data['x']), drug=['']*len(source_labels_96.data['x']), hs=['']*len(source_labels_96.data['x']))
             plot_wellplate_source.axis.visible = True
 
         elif '48' in new:
             plot_wellplate_source.x_range.factors = x_48
             plot_wellplate_source.y_range.factors = y_48
             plot_wellplate_source.title.text = "48 well plate"
-            cds_labels_source.data = dict(source_labels_48.data, size=[65*NZOOM_WELLS_SOURCE]*len(source_labels_48.data['x']))
+            cds_labels_source.data = dict(source_labels_48.data, size=[65*NZOOM_WELLS_SOURCE]*len(source_labels_48.data['x']), has_drug=[False]*len(source_labels_48.data['x']), drug=['']*len(source_labels_48.data['x']), hs=['']*len(source_labels_48.data['x']))
             plot_wellplate_source.axis.visible = True
 
         elif '24' in new:
@@ -789,11 +796,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             plot_wellplate_source.x_range.factors = x_24
             plot_wellplate_source.y_range.factors = y_24
             plot_wellplate_source.title.text = "24 well plate"
-            cds_labels_source.data = dict(source_labels_24.data, size=[80*NZOOM_WELLS_SOURCE]*len(source_labels_24.data['x']))
+            cds_labels_source.data = dict(source_labels_24.data, size=[80*NZOOM_WELLS_SOURCE]*len(source_labels_24.data['x']), has_drug=[False]*len(source_labels_24.data['x']), drug=['']*len(source_labels_24.data['x']), hs=['']*len(source_labels_24.data['x']))
             plot_wellplate_source.axis.visible = True
 
         else:
-            cds_labels_source.data = {'x':[], 'y':[]}
+            cds_labels_source.data = {'x':[], 'y':[], 'size':[], 'has_drug':[], 'drug':[], 'hs':[]}
             plot_wellplate_source.title.text = ""
             plot_wellplate_source.axis.visible = False
     dropdown_well_plate_source.on_change("value", load_well_plate_source)
