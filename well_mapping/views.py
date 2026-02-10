@@ -44,8 +44,8 @@ _programmatic_change = False
 global NZOOM_WELLS_SOURCE
 global NZOOM_WELLS_DEST
 
-NZOOM_WELLS_SOURCE = 1
-NZOOM_WELLS_DEST   = 1
+NZOOM_WELLS_SOURCE = 1./(1.2*1.2*1.2)
+NZOOM_WELLS_DEST   = 1./(1.2*1.2*1.2)
 #___________________________________________________________________________________________
 def vast_handler(doc: bokeh.document.Document) -> None:
     print('****************************  vast_handler ****************************')
