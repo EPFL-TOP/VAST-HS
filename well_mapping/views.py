@@ -2067,6 +2067,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         #_programmatic_change = False
 
 
+
+    update_views()
     remove_drug_button.on_click(remove_drug)
 
 
