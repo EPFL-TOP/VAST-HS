@@ -1141,7 +1141,9 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         source_well_plate = SourceWellPlate.objects.filter(experiment=experiment).first()
         if not source_well_plate:
             return 
+
         if len(new) == 0:
+            print('No drug or heat shock selected')
             drug_message.text = ''
             drug_message.visible = False
             mapping_message.text = ''
@@ -1149,6 +1151,15 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             cds_labels_dest_2_mapping.data = {'x':[], 'y':[], 'size':[]}
             cds_labels_dest_mapping.data = {'x':[], 'y':[], 'size':[]}
             return
+        if len(new) > 1:
+            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not display more than 1 well drug or hs info.</b>"
+            drug_message.visible = True
+            add_drug_button.label = "Add drug"
+            add_drug_button.button_type = "success"
+            add_hs_button.label = "Add heatshock"
+            add_hs_button.button_type = "success"
+            return
+
         well_position = get_well_mapping(new, issupp=True)
         source_well_positions = SourceWellPosition.objects.filter(well_plate=source_well_plate, is_supp=True, position_col=well_position[0][0], position_row=well_position[0][1])
         drugs = Drug.objects.filter(position__in=source_well_positions)
