@@ -1486,15 +1486,15 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         for pos in positions_supp:
             print('pos supp=', pos)
             try:
-                source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
-                print('source_well_pos supp=', source_well_pos)
-                heatshocks = HeatShock.objects.filter(position=source_well_pos)
-                heatshock = HeatShock(pre_incubation=hs_pre_incubation.value,
+                source_well_pos_supp = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
+                print('source_well_pos_supp=', source_well_pos_supp)
+                heatshocks = HeatShock.objects.filter(position=source_well_pos_supp)
+                heatshock = HeatShock(pre_incubation=True if hs_pre_incubation.value=='Yes' else False,
                                         temperature=hs_temperature.value,
                                         duration=hs_duration.value,
                                         fish_stage=hs_fish_stage.value,
                                         order=len(heatshocks)+1,
-                                        position=source_well_pos)
+                                        position=source_well_pos_supp)
                 heatshock.save()
 
                 wells.append(f"{pos[1]}{pos[0]} (supp)")
@@ -1613,43 +1613,17 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                             duration=drug_duration.value,
                             fish_stage=drug_fish_stage.value,
                             order=len(drugs)+1,
-                            position=source_well_pos,
+                            position=source_well_pos_supp,
                             derivation_name=deriv_name)
                 drug.save()
                 wells.append(f"{pos[1]}{pos[0]}")
 
             except SourceWellPosition.DoesNotExist:
                 print(f"Source Supp well position {pos} does not exist in the source well plate.")
-
-
-        #drug_message.text = f"<b style='color:green; ; font-size:18px;'> Added drug {slimsid_name.value} with concentration {drug_concentration.value} to wells {wells}.</b>"
-        #drug_message.visible = True
-        #add_drug_button.label = "Add drug"
-        #add_drug_button.button_type = "success"
-
      
         display_drugs_source_wellplate()
         display_drugs_dest_wellplate()
-
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
-
-        #global _programmatic_change
-        #_programmatic_change = True
-        #cds_labels_source.selected.indices = []
-        #cds_labels_source_supp.selected.indices = []
-        #_programmatic_change = False
-
-
-        print('cds_labels_source.data     ',cds_labels_source.data)
-        print('cds_labels_source.indices  ',cds_labels_source.selected.indices)
-        print('cds_labels_source_supp.data     ',cds_labels_source_supp.data)
-        print('cds_labels_source_supp.indices  ',cds_labels_source_supp.selected.indices)
-        print('cds_labels_source_drug.data     ',cds_labels_source_drug.data)
-        print('cds_labels_source_drug.indices  ',cds_labels_source_drug.selected.indices)
-
-
-
-
 
 
     #___________________________________________________________________________________________
