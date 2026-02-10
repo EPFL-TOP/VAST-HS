@@ -997,7 +997,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             return
 
         _programmatic_change = True
-        cds_labels_source_supp.selected.indices = []
+        #cds_labels_source_supp.selected.indices = []
         _programmatic_change = False
 
         experiment = Experiment.objects.filter(name=dropdown_exp.value).first()
@@ -1132,7 +1132,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             return
 
         _programmatic_change = True
-        cds_labels_source.selected.indices = []
+        #cds_labels_source.selected.indices = []
         _programmatic_change = False
 
         experiment = Experiment.objects.filter(name=dropdown_exp.value).first()
