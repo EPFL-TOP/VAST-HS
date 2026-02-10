@@ -199,8 +199,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     empty_filter = bokeh.models.BooleanFilter([])
     drug_filter = bokeh.models.BooleanFilter([])
-    view_empty = bokeh.models.CDSView(filters=[empty_filter])
-    view_drug  = bokeh.models.CDSView(filters=[drug_filter])
+    view_empty = bokeh.models.CDSView(filter=empty_filter)
+    view_drug  = bokeh.models.CDSView(filter=drug_filter)
 
 
     r_empty = plot_wellplate_source.circle(
