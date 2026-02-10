@@ -879,24 +879,24 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         source_well_positions_supp = SourceWellPosition.objects.filter(well_plate=source_well_plate, is_supp=True)
 
 
-        drug = []
-        hs = []
-        has_drug = []
+        drug_list = []
+        hs_list = []
+        has_drug_list = []
         for well_pos in source_well_positions:
             drug = Drug.objects.filter(position=well_pos)
             hs = HeatShock.objects.filter(position=well_pos)
             if len(drug) != 0 or len(hs) != 0:
-                has_drug.append(True)
-                drug.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
-                hs.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites{" - PI" if h.pre_incubation else ""}' for h in hs]))
+                has_drug_list.append(True)
+                drug_list.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
+                hs_list.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites{" - PI" if h.pre_incubation else ""}' for h in hs]))
             else:
-                has_drug.append(False)
-                drug.append('')
-                hs.append('')    
+                has_drug_list.append(False)
+                drug_list.append('')
+                hs_list.append('')    
         data = cds_labels_source.data
         data['drug'] = drug
         data['hs'] = hs
-        data['has_drug'] = has_drug
+        data['has_drug'] = has_drug_list
         cds_labels_source.data = data
 
 
