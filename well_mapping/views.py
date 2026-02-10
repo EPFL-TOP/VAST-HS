@@ -453,7 +453,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         cds_labels_source_supp.data = dict(x=x_supp, y=y_supp, size=[50*NZOOM_WELLS_SOURCE]*len(x_supp), has_drug=[False]*len(x_supp), drug=['']*len(x_supp), hs=['']*len(x_supp))
         plot_wellplate_source_supp.x_range.factors = x_supp
         plot_wellplate_source_supp.y_range.factors = ['Z']
-
+        update_views()
     dropdown_n_supp_sourcewell.on_change("value", add_source_well)
 
 
