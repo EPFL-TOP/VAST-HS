@@ -894,8 +894,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 drug_list.append('')
                 hs_list.append('')    
         data = cds_labels_source.data
-        data['drug'] = drug
-        data['hs'] = hs
+        data['drug'] = drug_list
+        data['hs'] = hs_list
         data['has_drug'] = has_drug_list
         cds_labels_source.data = data
 
