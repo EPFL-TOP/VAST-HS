@@ -1607,7 +1607,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             try:
                 source_well_pos_supp = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
                 print('source_well_pos_supp=', source_well_pos_supp)
-                drugs = Drug.objects.filter(position=source_well_pos)
+                drugs = Drug.objects.filter(position=source_well_pos_supp)
                 drug = Drug(slims_id=slimsid_name.value, 
                             concentration=drug_concentration.value,
                             duration=drug_duration.value,
