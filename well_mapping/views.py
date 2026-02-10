@@ -115,10 +115,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     cds_labels_source      = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], has_drug=[], drug=[], hs=[]))
     cds_labels_source_supp = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], has_drug=[], drug=[], hs=[]))
 
-    cds_labels_source_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], drug=[], hs=[]))
-    cds_labels_source_supp_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], drug=[], hs=[]))
-
-
     cds_labels_dest_1_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[]))
     cds_labels_dest_2_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[]))
 
@@ -732,8 +728,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             cds_labels_dest_2.data = {'x':[], 'y':[], 'size':[]}
             cds_labels_source.data      = {'x':[], 'y':[], 'size':[], 'has_drug':[], 'drug':[], 'hs':[]}
             cds_labels_source_supp.data = {'x':[], 'y':[], 'size':[], 'has_drug':[], 'drug':[], 'hs':[]}
-            cds_labels_source_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[]}
-            cds_labels_source_supp_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[]}
             cds_labels_dest_1_drug.data = {'x':[], 'y':[], 'size':[]}
             cds_labels_dest_2_drug.data = {'x':[], 'y':[], 'size':[]}
             cds_labels_dest_1_drug_control.data = {'x':[], 'y':[], 'size':[]}
@@ -864,8 +858,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     #___________________________________________________________________________________________
     def display_drugs_source_wellplate():
         print('------------------->>>>>>>>> display_drugs_source_wellplate')
-        cds_labels_source_drug.data      = {'x':[], 'y':[], 'size':[], 'drug':[], 'hs':[]}
-        cds_labels_source_supp_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[], 'hs':[]}
 
         experiment = Experiment.objects.filter(name=dropdown_exp.value).first()
         if not experiment:
@@ -893,14 +885,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 has_drug_list.append(False)
                 drug_list.append('')
                 hs_list.append('')    
-        #data = cds_labels_source.data
        
         cds_labels_source.data = dict(x=cds_labels_source.data['x'],
                                       y=cds_labels_source.data['y'],
-                                        size=cds_labels_source.data['size'],
-                                        has_drug=has_drug_list,
-                                        drug=drug_list,
-                                        hs=hs_list)
+                                      size=cds_labels_source.data['size'],
+                                      has_drug=has_drug_list,
+                                      drug=drug_list,
+                                      hs=hs_list)
 
         drug_supp = []
         hs_supp = []
@@ -918,11 +909,11 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 hs_supp.append('')
 
         cds_labels_source_supp.data = dict(x=cds_labels_source_supp.data['x'],
-                                          y=cds_labels_source_supp.data['y'],
-                                          size=cds_labels_source_supp.data['size'],
-                                          has_drug=has_drug_supp,
-                                          drug=drug_supp,
-                                          hs=hs_supp)
+                                           y=cds_labels_source_supp.data['y'],
+                                           size=cds_labels_source_supp.data['size'],
+                                           has_drug=has_drug_supp,
+                                           drug=drug_supp,
+                                           hs=hs_supp)
         update_views()
 
 
@@ -997,129 +988,9 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         cds_labels_dest_2_drug_control.data = {'x':x_dest_2_control, 'y':y_dest_2_control, 'size':size_dest_2_control}
 
 
-
-
-
-
-
-    #___________________________________________________________________________________________
-    def display_heatshock_name(attr, old, new):
-        print('------------------->>>>>>>>> display_heatshock_name')
-        cds_labels_source_supp_drug.selected.indices = []
-
-        global _programmatic_change
-        if _programmatic_change: 
-            return
-
-        _programmatic_change = True
-        cds_labels_source_supp.selected.indices = []
-        _programmatic_change = False
-
-        experiment = Experiment.objects.filter(name=dropdown_exp.value).first()
-        if not experiment:
-            return
-        source_well_plate = SourceWellPlate.objects.filter(experiment=experiment).first()
-        if not source_well_plate:
-            return 
-        if len(new) == 0:
-            print('No hs selected')
-            hs_message.text = ''
-            hs_message.visible = False
-            mapping_message.text = ''
-            mapping_message.visible = False
-            cds_labels_dest_2_mapping.data = {'x':[], 'y':[], 'size':[]}
-            cds_labels_dest_mapping.data = {'x':[], 'y':[], 'size':[]}
-            return
-        if len(new) > 1:
-            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not display more than 1 hs well info.</b>"
-            hs_message.visible = True
-            return
-        well_position = get_well_mapping(new)
-        source_well_positions = SourceWellPosition.objects.filter(well_plate=source_well_plate, is_supp=False, position_col=well_position[0][0], position_row=well_position[0][1])
-        hs = HeatShock.objects.filter(position__in=source_well_positions)
-        print("--------source_well_positions ",source_well_positions)
-
-        if len(hs) == 0:
-            hs_message.text = f"<b style='color:red; ; font-size:18px;'> No heatshock in selected well {well_position[0][1]}{well_position[0][0]}.</b>"
-
-        else:
-            items_html = "".join(
-                f"<li style='color:navy; font-size:14px; "
-                f"margin-bottom:4px;'>{h}</li>"
-                for h in hs)
-
-            hs_message.text = f"""
-            <b style='color:green; font-size:18px;'>
-                Heatshock(s) in selected well {well_position[0][1]}{well_position[0][0]}:
-            </b>
-            <ul style='margin-top:0;'>
-                {items_html} <br> <b style='color:black; font-size:14px;'> comments={source_well_positions[0].comments}, valid well={source_well_positions[0].valid}</b>
-            </ul>
-            """
-
-        hs_message.visible = True
-        add_hs_button.label = "Add heatshock"
-        add_hs_button.button_type = "success"
-
-        dests = source_well_positions.first().destwellposition_set.all()
-        print('dests=', dests)
-
-
-        if len(dests) == 0:
-            mapping_message.text = f"<b style='color:red; font-size:18px;'> No destination wells mapped for well {well_position[0][1]}{well_position[0][0]}.</b>"
-            mapping_message.visible = True
-            cds_labels_dest_2_mapping.data = {'x':[], 'y':[], 'size':[]}
-            cds_labels_dest_mapping.data = {'x':[], 'y':[], 'size':[]}
-            return
-        
-        str_1 = ''
-        str_2 = ''
-        for well_pos in dests:
-            if well_pos.source_well!= None:
-                if well_pos.well_plate.plate_number == 1:
-                    if str_1 == "":
-                        str_1 = f'{str(well_pos.position_row)}{well_pos.position_col}'
-                    else:
-                        str_1+=f', {str(well_pos.position_row)}{well_pos.position_col}'
-                if well_pos.well_plate.plate_number == 2:
-                    if str_2 == "":
-                        str_2 = f'{str(well_pos.position_row)}{well_pos.position_col}'
-                    else:
-                        str_2+=f', {str(well_pos.position_row)}{well_pos.position_col}'
-        if str_1 != '':
-            mapping_message.text = f"<b style='color:green; font-size:18px;'> Mapped well {well_position[0][1]}{well_position[0][0]} to {str_1} for plate number 1.</b><br>"
-        if str_2 != '' and str_1 != '':
-            mapping_message.text += f"<b style='color:green; font-size:18px;'> Mapped well {well_position[0][1]}{well_position[0][0]} to {str_2} for plate number 2.</b>"
-        if str_2 != '' and str_1 == '':
-            mapping_message.text = f"<b style='color:green; font-size:18px;'> Mapped well {well_position[0][1]}{well_position[0][0]} to {str_2} for plate number 2.</b>"
-
-        mapping_message.visible = True
-
-        x_dest_1 = []
-        y_dest_1 = []
-        size_dest_1 = []
-        x_dest_2 = []
-        y_dest_2 = []
-        size_dest_2 = []
-        for well_pos in dests:
-            if well_pos.source_well!= None:
-                if well_pos.well_plate.plate_number == 1:
-                    x_dest_1.append(well_pos.position_col)
-                    y_dest_1.append(well_pos.position_row)
-                    size_dest_1.append(cds_labels_dest.data['size'][cds_labels_dest.data['x'].index(well_pos.position_col)])
-                if well_pos.well_plate.plate_number == 2:
-                    x_dest_2.append(well_pos.position_col)
-                    y_dest_2.append(well_pos.position_row)
-                    size_dest_2.append(cds_labels_dest.data['size'][cds_labels_dest.data['x'].index(well_pos.position_col)])
-        cds_labels_dest_mapping.data = {'x':x_dest_1, 'y':y_dest_1, 'size':size_dest_1}
-        cds_labels_dest_2_mapping.data = {'x':x_dest_2, 'y':y_dest_2, 'size':size_dest_2}
-
-    #cds_labels_source.selected.on_change('indices',display_heatshock_name)
-
     #___________________________________________________________________________________________
     def display_drug_hs_name(attr, old, new):
         print('------------------->>>>>>>>> display_drug_hs_name')
-        cds_labels_source_supp_drug.selected.indices = []
 
         global _programmatic_change
         if _programmatic_change: 
@@ -1143,7 +1014,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             mapping_message.visible = False
             cds_labels_dest_2_mapping.data = {'x':[], 'y':[], 'size':[]}
             cds_labels_dest_mapping.data = {'x':[], 'y':[], 'size':[]}
-            #cds_labels_source_drug.selected.indices = []
             return
         if len(new) > 1:
             drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Can not display more than 1 well drug or hs info.</b>"
@@ -1257,7 +1127,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     #___________________________________________________________________________________________
     def display_drug_supp_name(attr, old, new):
         print('------------------->>>>>>>>> display_drug_supp_name')
-        cds_labels_source_drug.selected.indices = []
         global _programmatic_change
         if _programmatic_change: 
             return
@@ -1283,29 +1152,44 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         well_position = get_well_mapping(new, issupp=True)
         source_well_positions = SourceWellPosition.objects.filter(well_plate=source_well_plate, is_supp=True, position_col=well_position[0][0], position_row=well_position[0][1])
         drugs = Drug.objects.filter(position__in=source_well_positions)
+        hs = HeatShock.objects.filter(position__in=source_well_positions)
 
-        if len(drugs) == 0:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> No drug in selected well {well_position[0][1]}{well_position[0][0]}.</b>"
+        if len(drugs) == 0 and len(hs) == 0:
+            drug_message.text = f"<b style='color:red; ; font-size:18px;'> No drug nor heatshock in selected well {well_position[0][1]}{well_position[0][0]}.</b>"
+
         else:
-            items_html = "".join(
+            items_html_drugs = "".join(
                 f"<li style='color:navy; font-size:14px; "
                 f"margin-bottom:4px;'>{drug}</li>"
-                for drug in drugs
-            )
+                for drug in drugs)
+            items_html_drugs = f"<ol>{items_html_drugs}</ol>"
 
+            items_html_hs = "".join(
+                f"<li style='color:navy; font-size:14px; "
+                f"margin-bottom:4px;'>{h}</li>"
+                for h in hs)
+            items_html_hs = f"<ol>{items_html_hs}</ol>"
+            
             drug_message.text = f"""
             <b style='color:green; font-size:18px;'>
-                Drug(s) in selected well {well_position[0][1]}{well_position[0][0]}:
+                Drug(s) or Heatshock(s) in selected well {well_position[0][1]}{well_position[0][0]}:
             </b>
             <ul style='margin-top:0;'>
-                {items_html}
+                {items_html_drugs} 
+                <hr>
+                {items_html_hs} 
+                <br> 
+                <b style='color:black; font-size:14px;'> comments={source_well_positions[0].comments}, valid well={source_well_positions[0].valid}</b>
             </ul>
             """
 
-        #drug_message.text = f"<b style='color:green; ; font-size:18px;'> Drug(s) in selected well {well_position[1]}{well_position[0]}.</b>"
         drug_message.visible = True
         add_drug_button.label = "Add drug"
         add_drug_button.button_type = "success"
+        add_hs_button.label = "Add heatshock"
+        add_hs_button.button_type = "success"
+
+
 
 
         dests = source_well_positions.first().destwellposition_set.all()
@@ -1414,7 +1298,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         valid_wellcluster.value = 'True'
 
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
-
+        display_drug_supp_name(None, None, cds_labels_source_supp.selected.indices)
     valid_wellcluster_button.on_click(add_wellcluster_comment_valid)
 
 
@@ -1459,10 +1343,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         plate = experiement.source_plate
 
         positions = get_well_mapping(cds_labels_source.selected.indices)
-        positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
-        print('add drug to well positions=', positions)
-        print('add drug to well positions supp=', positions_supp)   
-
         wells=[]
         for pos in positions:
             print('pos=', pos)
@@ -1477,12 +1357,12 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                         order=len(heatshocks)+1,
                                         position=source_well_pos)
                 heatshock.save()
-
                 wells.append(f"{pos[1]}{pos[0]}")
             except SourceWellPosition.DoesNotExist:
                 print(f"Source well position {pos} does not exist in the source well plate.")
 
 
+        positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
         for pos in positions_supp:
             print('pos supp=', pos)
             try:
@@ -1496,23 +1376,15 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                         order=len(heatshocks)+1,
                                         position=source_well_pos_supp)
                 heatshock.save()
-
                 wells.append(f"{pos[1]}{pos[0]} (supp)")
             except SourceWellPosition.DoesNotExist:
                 print(f"Source well position {pos} does not exist in the source well plate.")
 
-
-        #drug_message.text = f"<b style='color:green; ; font-size:18px;'> Added drug {slimsid_name.value} with concentration {drug_concentration.value} to wells {wells}.</b>"
-        #drug_message.visible = True
-        #add_drug_button.label = "Add drug"
-        #add_drug_button.button_type = "success"
-
      
         display_drugs_source_wellplate()
         display_drugs_dest_wellplate()
-
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
-
+        display_drug_supp_name(None, None, cds_labels_source_supp.selected.indices)
 
     #___________________________________________________________________________________________
     #this function adds a drug to the source well plate and to the database
@@ -1624,7 +1496,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         display_drugs_source_wellplate()
         display_drugs_dest_wellplate()
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
-
+        display_drug_supp_name(None, None, cds_labels_source_supp.selected.indices)
 
     #___________________________________________________________________________________________
     def map_drugs_to_wellplate():
@@ -1886,8 +1758,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
             zoom_size(factor, cds_labels_source)
             zoom_size(factor, cds_labels_source_supp)
-            zoom_size(factor, cds_labels_source_drug)
-            zoom_size(factor, cds_labels_source_supp_drug)
 
 
         return zoom_cb
@@ -1982,8 +1852,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         display_drugs_source_wellplate()
         display_drugs_dest_wellplate()
-
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
+        display_drug_supp_name(None, None, cds_labels_source_supp.selected.indices)
     remove_hs_button.on_click(remove_hs)
 
     #___________________________________________________________________________________________
@@ -2017,17 +1887,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
         display_drugs_source_wellplate()
         display_drugs_dest_wellplate()
-
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
-
-        #global _programmatic_change
-        #_programmatic_change = True
-        #cds_labels_source.selected.indices = []
-        #cds_labels_source_supp.selected.indices = []
-        #cds_labels_source_drug.selected.indices = []
-        #_programmatic_change = False
-
-
+        display_drug_supp_name(None, None, cds_labels_source_supp.selected.indices)
 
     update_views()
     remove_drug_button.on_click(remove_drug)
