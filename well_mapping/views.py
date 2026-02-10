@@ -803,6 +803,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             plot_wellplate_source.title.text = ""
             plot_wellplate_source.axis.visible = False
         print('cds_labels_source.data=', cds_labels_source.data)
+        update_views()
     dropdown_well_plate_source.on_change("value", load_well_plate_source)
 
 
