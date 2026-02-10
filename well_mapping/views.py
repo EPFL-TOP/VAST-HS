@@ -112,8 +112,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     plot_wellplate_dest_2.grid.visible = False
     plot_wellplate_dest_2.axis.visible = False
 
-    cds_labels_source = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[]))
-    cds_labels_source_supp = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[]))
+    cds_labels_source      = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], has_drug=[], drug=[], hs=[]))
+    cds_labels_source_supp = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], has_drug=[], drug=[], hs=[]))
 
     cds_labels_source_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], drug=[], hs=[]))
     cds_labels_source_supp_drug = bokeh.models.ColumnDataSource(data=dict(x=[], y=[], size=[], drug=[], hs=[]))
@@ -197,50 +197,63 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     slims = Slims(name="slims", url=accessk.end_point, username=accessk.user_name, password=accessk.password)
 
-    plot_wellplate_source.circle('x', 'y', 
-                                 size='size',
-                                 source=cds_labels_source, 
-                                 line_color='blue', 
-                                 fill_color="white",
-                                 selection_fill_color="red",
-                                 selection_line_color="black",
-                                 selection_fill_alpha=0.7,
-                                 nonselection_fill_alpha=0.0,      # style for non-selected
-                                 nonselection_fill_color="white",
-                                 nonselection_line_color="blue",)
+    r_empty = plot_wellplate_source.circle(
+        'x', 'y',
+        size='size',
+        source=cds_labels_source,
+        fill_color="white",
+        line_color="blue",
+        fill_alpha=0.0,
+        nonselection_fill_alpha=0.1,
+        view=bokeh.models.CDSView(
+            filter=bokeh.models.BooleanFilter([not v for v in cds_labels_source.data['has_drug']])
+        )
+    )
+
+    r_drug = plot_wellplate_source.circle(
+        'x', 'y',
+        size='size',
+        source=cds_labels_source,
+        fill_alpha=0.0,
+        line_width=4,
+        line_color="black",
+        nonselection_line_alpha=0.2,
+        view=bokeh.models.CDSView(
+            filter=bokeh.models.BooleanFilter(cds_labels_source.data['has_drug'])
+        )
+    )
+
+    for r in (r_empty, r_drug):
+        r.selection_fill_color = "red"
+        r.selection_fill_alpha = 0.7
+        r.selection_line_color = "black"
+
+
+#    plot_wellplate_source.circle('x', 'y', 
+#                                 size='size',
+#                                 source=cds_labels_source, 
+#                                 line_color='blue', 
+#                                 fill_color='white',
+#                                 selection_fill_color='red',
+#                                 selection_line_color='black',
+#                                 selection_fill_alpha=0.7,
+#                                 nonselection_fill_alpha=0.0,      # style for non-selected
+#                                 nonselection_fill_color='white',
+#                                 nonselection_line_color='blue',)
     
-    r_source=plot_wellplate_source.circle('x', 'y', 
-                                 size='size',
-                                 source=cds_labels_source_drug, 
-                                 fill_alpha=0.0,
-                                 line_width=4,
-                                 line_color='black', #fill_color="black",
-                                 selection_fill_color="red",    # when selected
-                                 selection_line_color="black",
-                                 selection_fill_alpha=0.7,
-                                 #nonselection_fill_alpha=0.0,      # style for non-selected
-                                 #nonselection_fill_color="black",
-                                 nonselection_line_color="black",)
+#    r_source=plot_wellplate_source.circle('x', 'y', 
+#                                 size='size',
+#                                 source=cds_labels_source_drug, 
+#                                 fill_alpha=0.0,
+#                                 line_width=4,
+#                                 line_color='black', #fill_color="black",
+#                                 selection_fill_color='red',    # when selected
+#                                 selection_line_color='black',
+#                                 selection_fill_alpha=0.7,
+#                                 #nonselection_fill_alpha=0.0,      # style for non-selected
+#                                 #nonselection_fill_color="black",
+#                                 nonselection_line_color='black',)
 
-    labels = bokeh.models.LabelSet(x = 'x',y = 'y', text = 'drug',
-                                   source = cds_labels_source_drug,
-                                    x_offset = 0, y_offset = 0,
-                                    text_align = 'center',
-                                    text_baseline = 'middle',
-                                    text_font_size = '12px',
-                                    text_color = 'navy'
-    )
-
-    labels_supp = bokeh.models.LabelSet(x = 'x',y = 'y', text = 'drug',
-                                   source = cds_labels_source_supp_drug,
-                                    x_offset = 0, y_offset = 0,
-                                    text_align = 'center',
-                                    text_baseline = 'middle',
-                                    text_font_size = '12px',
-                                    text_color = 'navy'
-    )
-
-#    plot_wellplate_source.add_layout(labels)
 
 
 
@@ -267,43 +280,39 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                  nonselection_fill_color="black",
                                  nonselection_line_color="black",)
 
-    #plot_wellplate_source_supp.add_layout(labels_supp)
 
     hover_grid_source = bokeh.models.HoverTool(
-    renderers=[r_source, r_source_supp],
+        renderers=[r_drug, r_source_supp],
 
-    #tooltips="""
-    #<div style="font-size:14px;">
-    #"""
-    tooltips="""
-    <div style="font-size:14px;">
-        <div style="font-size:13px;">
-            <span style="color:#2563eb; font-weight:bold; font-size:15px;">
-                Position:
-            </span>
-            <span style="margin-left:6px;">
-                (@x, @y)
-            </span>
-        </div>
-    
-        <div style="color:#2563eb; font-weight:bold; font-size:15px;">
-            Drugs
-        </div>
-        <div style="margin-left:5px; font-size:13px;">
-            @drug
+        tooltips="""
+        <div style="font-size:14px;">
+            <div style="font-size:13px;">
+                <span style="color:#2563eb; font-weight:bold; font-size:15px;">
+                    Position:
+                </span>
+                <span style="margin-left:6px;">
+                    (@x, @y)
+                </span>
+            </div>
+        
+            <div style="color:#2563eb; font-weight:bold; font-size:15px;">
+                Drugs
+            </div>
+            <div style="margin-left:5px; font-size:13px;">
+                @drug
+            </div>
+
+            <div style="color:#2563eb; font-weight:bold; font-size:15px;">
+                HS
+            </div>
+            <div style="margin-left:5px; font-size:13px;">
+                @hs
+            </div>
+        
+
         </div>
 
-           <div style="color:#2563eb; font-weight:bold; font-size:15px;">
-            HS
-        </div>
-        <div style="margin-left:5px; font-size:13px;">
-            @hs
-        </div>
-     
-
-    </div>
-
-    """
+        """
     )
 
     hover_grid_source.mode = 'mouse' 
@@ -727,8 +736,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             experiment_name.value = ''
             cds_labels_dest.data = {'x':[], 'y':[], 'size':[]}
             cds_labels_dest_2.data = {'x':[], 'y':[], 'size':[]}
-            cds_labels_source.data = {'x':[], 'y':[], 'size':[]}
-            cds_labels_source_supp.data = {'x':[], 'y':[], 'size':[]}
+            cds_labels_source.data      = {'x':[], 'y':[], 'size':[], 'has_drug':[], 'drug':[], 'hs':[]}
+            cds_labels_source_supp.data = {'x':[], 'y':[], 'size':[], 'has_drug':[], 'drug':[], 'hs':[]}
             cds_labels_source_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[]}
             cds_labels_source_supp_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[]}
             cds_labels_dest_1_drug.data = {'x':[], 'y':[], 'size':[]}
@@ -853,99 +862,12 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     dropdown_n_dest_wellplates.on_change("value", load_well_plate_dest_2)
 
 
-    #___________________________________________________________________________________________
-    def add_drug_hs_to_well(toadd):
-        print('------------------->>>>>>>>> add_drug_hs_to_well')
-
-        experiement   = Experiment.objects.filter(name=dropdown_exp.value).first()
-        if not experiement:
-            hs_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Select a valid experiment.</b>"
-            hs_message.visible = True
-            add_hs_button.label = "Add heatshock"
-            add_hs_button.button_type = "success"
-            return
-
-        plate = experiement.source_plate
-
-        positions = get_well_mapping(cds_labels_source.selected.indices)
-        positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
-        print('add hs drug to well positions=', positions)
-        print('add hs drug to well positions supp=', positions_supp)
-
-        wells=[]
-        for pos in positions:
-            print('pos=', pos)
-            try:
-                source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=False)
-                print('source_well_pos=', source_well_pos)
-                toadd.position.add(source_well_pos)
-                toadd.save()
-                wells.append(f"{pos[1]}{pos[0]}")
-            except SourceWellPosition.DoesNotExist:
-                print(f"Source well position {pos} does not exist in the source well plate.")
-
-        for pos in positions_supp:
-            print('pos supp=', pos)
-            try:
-                source_well_pos_supp = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
-                print('source_well_pos_supp=', source_well_pos_supp)
-                toadd.position.add(source_well_pos_supp) 
-                toadd.save()
-                wells.append(f"{pos[1]}{pos[0]}")
-
-            except SourceWellPosition.DoesNotExist:
-                print(f"Source Supp well position {pos} does not exist in the source well plate.")
-        return wells
-
-
-
-    #___________________________________________________________________________________________
-    def add_drug_to_well(drug):
-        print('------------------->>>>>>>>> add_drug_to_well')
-
-        experiement   = Experiment.objects.filter(name=dropdown_exp.value).first()
-        if not experiement:
-            drug_message.text = f"<b style='color:red; ; font-size:18px;'> Error: Select a valid experiment.</b>"
-            drug_message.visible = True
-            add_drug_button.label = "Add drug"
-            add_drug_button.button_type = "success"
-            return
-
-        plate = experiement.source_plate
-
-        positions = get_well_mapping(cds_labels_source.selected.indices)
-        positions_supp = get_well_mapping(cds_labels_source_supp.selected.indices, issupp=True)
-        print('add drug to well positions=', positions)
-        print('add drug to well positions supp=', positions_supp)   
-
-        wells=[]
-        for pos in positions:
-            print('pos=', pos)
-            try:
-                source_well_pos = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=False)
-                print('source_well_pos=', source_well_pos)
-                drug.position.add(source_well_pos)
-                wells.append(f"{pos[1]}{pos[0]}")
-            except SourceWellPosition.DoesNotExist:
-                print(f"Source well position {pos} does not exist in the source well plate.")
-
-        for pos in positions_supp:
-            print('pos supp=', pos)
-            try:
-                source_well_pos_supp = SourceWellPosition.objects.get(well_plate=plate, position_col=pos[0], position_row=pos[1], is_supp=True)
-                print('source_well_pos_supp=', source_well_pos_supp)
-                drug.position.add(source_well_pos_supp) 
-                wells.append(f"{pos[1]}{pos[0]}")
-
-            except SourceWellPosition.DoesNotExist:
-                print(f"Source Supp well position {pos} does not exist in the source well plate.")
-        return wells
     
     #___________________________________________________________________________________________
     def display_drugs_source_wellplate():
         print('------------------->>>>>>>>> display_drugs_source_wellplate')
-        cds_labels_source_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[]}
-        cds_labels_source_supp_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[]}
+        cds_labels_source_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[], 'hs':[]}
+        cds_labels_source_supp_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[], 'hs':[]}
 
         experiment = Experiment.objects.filter(name=dropdown_exp.value).first()
         if not experiment:
@@ -963,17 +885,27 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         size_filled = []
         drug_filled = []
         hs_filled = []
+        has_drug_filled = []
         for well_pos in source_well_positions:
             drug = Drug.objects.filter(position=well_pos)
             hs = HeatShock.objects.filter(position=well_pos)
             if len(drug) != 0 or len(hs) != 0:
+                has_drug_filled.append(True)
                 x_filled.append(well_pos.position_col)
                 y_filled.append(well_pos.position_row)
                 size_filled.append(cds_labels_source.data['size'][cds_labels_source.data['x'].index(well_pos.position_col)])
                 #drug_filled.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
                 drug_filled.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
                 hs_filled.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites{" - PI" if h.pre_incubation else ""}' for h in hs]))
+            else:
+                has_drug_filled.append(False)
+                x_filled.append(well_pos.position_col)
+                y_filled.append(well_pos.position_row)
+                size_filled.append(cds_labels_source.data['size'][cds_labels_source.data['x'].index(well_pos.position_col)])
+                drug_filled.append('')
+                hs_filled.append('')    
         cds_labels_source_drug.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled, 'hs':hs_filled}
+        cds_labels_source.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled, 'hs':hs_filled, 'has_drug':has_drug_filled}
 
         x_supp = []
         y_supp = []
