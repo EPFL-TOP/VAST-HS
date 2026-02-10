@@ -247,7 +247,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         selection_fill_color = "red",
         selection_fill_alpha = 0.7,
         selection_line_color = "black",
-        view=view_empty,
+        view=view_empty_supp,
     )
         
     r_drug_supp = plot_wellplate_source_supp.circle(
@@ -261,7 +261,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         selection_fill_alpha = 0.7,
         selection_line_color = "black",
         nonselection_line_alpha=0.2,
-        view=view_drug,
+        view=view_drug_supp,
     )
  
 
