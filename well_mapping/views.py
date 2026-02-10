@@ -413,7 +413,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                  selection_fill_alpha=0.7,
                                  nonselection_fill_alpha=0.0)
 
-    #
+    #___________________________________________________________________________________________
     def update_views():
         has_drug = cds_labels_source.data['has_drug']
 
@@ -919,7 +919,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                 hs_filled.append('')    
         cds_labels_source_drug.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled, 'hs':hs_filled}
         cds_labels_source.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled, 'hs':hs_filled, 'has_drug':has_drug_filled}
-
+        update_views()
         x_supp = []
         y_supp = []
         size_supp = []
