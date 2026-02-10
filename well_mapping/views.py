@@ -202,7 +202,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     view_empty = bokeh.models.CDSView(filter=empty_filter)
     view_drug  = bokeh.models.CDSView(filter=drug_filter)
 
-
     r_empty = plot_wellplate_source.circle(
         'x', 'y',
         size='size',
@@ -232,62 +231,42 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     )
 
 
+    empty_filter_supp = bokeh.models.BooleanFilter([])
+    drug_filter_supp  = bokeh.models.BooleanFilter([])
+    view_empty_supp   = bokeh.models.CDSView(filter=empty_filter_supp)
+    view_drug_supp    = bokeh.models.CDSView(filter=drug_filter_supp)
 
-
-#    plot_wellplate_source.circle('x', 'y', 
-#                                 size='size',
-#                                 source=cds_labels_source, 
-#                                 line_color='blue', 
-#                                 fill_color='white',
-#                                 selection_fill_color='red',
-#                                 selection_line_color='black',
-#                                 selection_fill_alpha=0.7,
-#                                 nonselection_fill_alpha=0.0,      # style for non-selected
-#                                 nonselection_fill_color='white',
-#                                 nonselection_line_color='blue',)
-    
-#    r_source=plot_wellplate_source.circle('x', 'y', 
-#                                 size='size',
-#                                 source=cds_labels_source_drug, 
-#                                 fill_alpha=0.0,
-#                                 line_width=4,
-#                                 line_color='black', #fill_color="black",
-#                                 selection_fill_color='red',    # when selected
-#                                 selection_line_color='black',
-#                                 selection_fill_alpha=0.7,
-#                                 #nonselection_fill_alpha=0.0,      # style for non-selected
-#                                 #nonselection_fill_color="black",
-#                                 nonselection_line_color='black',)
-
-
-
-
-    plot_wellplate_source_supp.circle('x', 'y', 
-                                 size='size',
-                                 source=cds_labels_source_supp, 
-                                 line_color='blue', fill_color="white",
-                                 selection_fill_color="orange",    # when selected
-                                 selection_line_color="firebrick",
-                                 selection_fill_alpha=0.9,
-                                 nonselection_fill_alpha=0.0,      # style for non-selected
-                                 nonselection_fill_color="white",
-                                 nonselection_line_color="blue",)
-    
-    r_source_supp=plot_wellplate_source_supp.circle('x', 'y', 
-                                 size='size',
-                                 source=cds_labels_source_supp_drug, 
-                                 fill_alpha=0.5,line_width=3,
-                                 line_color='black', fill_color="black",
-                                 selection_fill_color="red",    # when selected
-                                 selection_line_color="firebrick",
-                                 selection_fill_alpha=0.7,
-                                 nonselection_fill_alpha=0.0,      # style for non-selected
-                                 nonselection_fill_color="black",
-                                 nonselection_line_color="black",)
-
+    r_empty_supp = plot_wellplate_source_supp.circle(
+        'x', 'y',
+        size='size',
+        source=cds_labels_source_supp,
+        fill_color="white",
+        line_color="blue",
+        fill_alpha=0.0,
+        nonselection_fill_alpha=0.1,
+        selection_fill_color = "red",
+        selection_fill_alpha = 0.7,
+        selection_line_color = "black",
+        view=view_empty,
+    )
+        
+    r_drug_supp = plot_wellplate_source_supp.circle(
+        'x', 'y',
+        size='size',
+        source=cds_labels_source_supp,
+        fill_alpha=0.0,
+        line_width=4,
+        line_color="black",
+        selection_fill_color = "red",
+        selection_fill_alpha = 0.7,
+        selection_line_color = "black",
+        nonselection_line_alpha=0.2,
+        view=view_drug,
+    )
+ 
 
     hover_grid_source = bokeh.models.HoverTool(
-        renderers=[r_drug, r_source_supp],
+        renderers=[r_drug, r_drug_supp],
 
         tooltips="""
         <div style="font-size:14px;">
@@ -416,9 +395,12 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     #___________________________________________________________________________________________
     def update_views():
         has_drug = cds_labels_source.data['has_drug']
-
         empty_filter.booleans = [not v for v in has_drug]
         drug_filter.booleans  = has_drug
+
+        has_drug_supp = cds_labels_source_supp.data['has_drug']
+        empty_filter_supp.booleans = [not v for v in has_drug_supp]
+        drug_filter_supp.booleans  = has_drug_supp
 
     #___________________________________________________________________________________________
     def get_well_mapping(indices, issupp=False, issource=True):
@@ -462,13 +444,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     def add_source_well(attr, old, new):
         print('------------------->>>>>>>>> add_source_well')
         n_well_supp = int(new)
-
+        global NZOOM_WELLS_SOURCE
         x_supp=[str(i+1) for i in range(n_well_supp)]
         y_supp=['Z' for i in range(n_well_supp)]
 
         plot_wellplate_source_supp.axis.visible = True
         plot_wellplate_source_supp.title.text = "Supplementary plate"
-        cds_labels_source_supp.data = dict(x=x_supp, y=y_supp, size=[50*NZOOM_WELLS_SOURCE]*len(x_supp))
+        cds_labels_source_supp.data = dict(x=x_supp, y=y_supp, size=[50*NZOOM_WELLS_SOURCE]*len(x_supp), has_drug=[False]*len(x_supp), drug=['']*len(x_supp), hs=['']*len(x_supp))
         plot_wellplate_source_supp.x_range.factors = x_supp
         plot_wellplate_source_supp.y_range.factors = ['Z']
 
@@ -777,6 +759,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     #___________________________________________________________________________________________
     def load_well_plate_source(attr, old, new):
         print('------------------->>>>>>>>> load_well_plate_source')
+        global NZOOM_WELLS_SOURCE
         if '96' in new:
             plot_wellplate_source.x_range.factors = x_96
             plot_wellplate_source.y_range.factors = y_96
@@ -810,6 +793,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     #___________________________________________________________________________________________
     def load_well_plate_dest(attr, old, new):
         print('------------------->>>>>>>>> load_well_plate_dest')
+        global NZOOM_WELLS_DEST
         if '96' in new:
             plot_wellplate_dest.x_range.factors = x_96
             plot_wellplate_dest.y_range.factors = y_96
@@ -842,6 +826,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     #___________________________________________________________________________________________
     def load_well_plate_dest_2(attr, old, new):
         print('------------------->>>>>>>>> load_well_plate_dest_2')
+        global NZOOM_WELLS_DEST
         if dropdown_n_dest_wellplates.value == '2':
             if '96' in dropdown_well_plate_dest.value:
                 plot_wellplate_dest_2.x_range.factors = x_96
@@ -879,7 +864,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     #___________________________________________________________________________________________
     def display_drugs_source_wellplate():
         print('------------------->>>>>>>>> display_drugs_source_wellplate')
-        cds_labels_source_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[], 'hs':[]}
+        cds_labels_source_drug.data      = {'x':[], 'y':[], 'size':[], 'drug':[], 'hs':[]}
         cds_labels_source_supp_drug.data = {'x':[], 'y':[], 'size':[], 'drug':[], 'hs':[]}
 
         experiment = Experiment.objects.filter(name=dropdown_exp.value).first()
@@ -893,49 +878,48 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         source_well_positions = SourceWellPosition.objects.filter(well_plate=source_well_plate, is_supp=False)
         source_well_positions_supp = SourceWellPosition.objects.filter(well_plate=source_well_plate, is_supp=True)
 
-        x_filled = []
-        y_filled = []
-        size_filled = []
-        drug_filled = []
-        hs_filled = []
-        has_drug_filled = []
+
+        drug = []
+        hs = []
+        has_drug = []
         for well_pos in source_well_positions:
             drug = Drug.objects.filter(position=well_pos)
             hs = HeatShock.objects.filter(position=well_pos)
             if len(drug) != 0 or len(hs) != 0:
-                has_drug_filled.append(True)
-                x_filled.append(well_pos.position_col)
-                y_filled.append(well_pos.position_row)
-                size_filled.append(cds_labels_source.data['size'][cds_labels_source.data['x'].index(well_pos.position_col)])
-                #drug_filled.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
-                drug_filled.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
-                hs_filled.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites{" - PI" if h.pre_incubation else ""}' for h in hs]))
+                has_drug.append(True)
+                drug.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
+                hs.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}min - {h.fish_stage}somites{" - PI" if h.pre_incubation else ""}' for h in hs]))
             else:
-                has_drug_filled.append(False)
-                x_filled.append(well_pos.position_col)
-                y_filled.append(well_pos.position_row)
-                size_filled.append(cds_labels_source.data['size'][cds_labels_source.data['x'].index(well_pos.position_col)])
-                drug_filled.append('')
-                hs_filled.append('')    
-        cds_labels_source_drug.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled, 'hs':hs_filled}
-        cds_labels_source.data={'x':x_filled, 'y':y_filled, 'size':size_filled, 'drug':drug_filled, 'hs':hs_filled, 'has_drug':has_drug_filled}
-        update_views()
-        x_supp = []
-        y_supp = []
-        size_supp = []
+                has_drug.append(False)
+                drug.append('')
+                hs.append('')    
+        data = cds_labels_source.data
+        data['drug'] = drug
+        data['hs'] = hs
+        data['has_drug'] = has_drug
+        cds_labels_source.data = data
+
+
         drug_supp = []
         hs_supp = []
+        has_drug_supp = []
         for well_pos in source_well_positions_supp:
             drug = Drug.objects.filter(position=well_pos)
             hs = HeatShock.objects.filter(position=well_pos)
             if len(drug) != 0 or len(hs) != 0:
-                x_supp.append(well_pos.position_col)
-                y_supp.append(well_pos.position_row)
-                size_supp.append(cds_labels_source_supp.data['size'][cds_labels_source_supp.data['x'].index(well_pos.position_col)])
-                #drug_supp.append('\n '.join([f'{str(d.derivation_name)}\n{d.concentration}muMol' for d in drug]))
+                has_drug_supp.append(True)
                 drug_supp.append('<br>'.join([f'{d.order}) {str(d.derivation_name)} - {d.concentration}µMol - {d.duration}mins - {d.fish_stage}somites' for d in drug]))
                 hs_supp.append('<br>'.join([f'{h.order}) {str(h.temperature)}°C - {h.duration}mins - {h.fish_stage}somites{" - PI" if h.pre_incubation else ""}' for h in hs]))
-        cds_labels_source_supp_drug.data={'x':x_supp, 'y':y_supp, 'size':size_supp,'drug':drug_supp, 'hs':hs_supp}
+            else:
+                has_drug_supp.append(False)
+                drug_supp.append('')
+                hs_supp.append('')
+        data_supp = cds_labels_source_supp.data
+        data_supp['drug'] = drug_supp
+        data_supp['hs'] = hs_supp
+        data_supp['has_drug'] = has_drug_supp
+        cds_labels_source_supp.data = data_supp
+        update_views()
 
 
     #___________________________________________________________________________________________
@@ -1658,8 +1642,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         print('cds_labels_source_supp.indices  ',cds_labels_source_supp.selected.indices)
         print('cds_labels_source_drug.data     ',cds_labels_source_drug.data)
         print('cds_labels_source_drug.indices  ',cds_labels_source_drug.selected.indices)
-        print('cds_labels_source_supp_drug.data     ',cds_labels_source_supp_drug.data)
-        print('cds_labels_source_supp_drug.indices  ',cds_labels_source_supp_drug.selected.indices)
+
 
 
 
@@ -2064,7 +2047,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         #cds_labels_source.selected.indices = []
         #cds_labels_source_supp.selected.indices = []
         #cds_labels_source_drug.selected.indices = []
-        #cds_labels_source_supp_drug.selected.indices = []
         #_programmatic_change = False
 
 
@@ -2091,8 +2073,8 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     well_layout = bokeh.layouts.row(indent, bokeh.layouts.column(plot_wellplate_source,plot_wellplate_source_supp), bokeh.layouts.column(plot_wellplate_dest, plot_wellplate_dest_2))
     
-    exp_layout = bokeh.layouts.column(bokeh.layouts.row(zoom_in_wells_source, zoom_out_wells_source),
-                                      bokeh.layouts.row(dropdown_exp, dropdown_well_plate_source,dropdown_n_supp_sourcewell, dropdown_well_plate_dest, dropdown_n_dest_wellplates),
+    exp_layout = bokeh.layouts.column(bokeh.layouts.row(dropdown_exp,zoom_in_wells_source, zoom_out_wells_source),
+                                      bokeh.layouts.row(dropdown_well_plate_source,dropdown_n_supp_sourcewell, dropdown_well_plate_dest, dropdown_n_dest_wellplates),
                                       bokeh.layouts.row(experiment_name, experiment_date, pyrat_id),
                                       bokeh.layouts.row(experiment_description), 
                                       bokeh.layouts.row(create_experiment_button, delete_experiment_button, check_pyrat_id_button, modify_experiment_button))
