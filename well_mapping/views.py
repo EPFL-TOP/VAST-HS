@@ -952,11 +952,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         hs_list = []
         has_drug_list = []
         has_hs_list = []
+        counter=0
         for well_pos in source_well_positions:
             drug = Drug.objects.filter(position=well_pos)
             hs   = HeatShock.objects.filter(position=well_pos)
             print('well_pos=', well_pos, 'drug=', drug, 'hs=', hs)
             print('len(drug)=', len(drug), 'len(hs)=', len(hs))
+            print('counter=', counter)
             if len(drug) != 0 and len(hs) != 0:
                 has_drug_list.append(True)
                 has_hs_list.append(True)
