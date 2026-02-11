@@ -236,7 +236,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         view=view_drug,
     )
 
-    plot_wellplate_source.circle(
+    r_hs = plot_wellplate_source.circle(
         'x', 'y',
         source=cds_labels_source,
         view=view_hs,
@@ -251,8 +251,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     )
 
-
-    plot_wellplate_source.circle(
+    r_both = plot_wellplate_source.circle(
         'x', 'y',
         source=cds_labels_source,
         view=view_both,
@@ -303,7 +302,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
  
 
     hover_grid_source = bokeh.models.HoverTool(
-        renderers=[r_drug, r_drug_supp],
+        renderers=[r_drug, r_drug_supp, r_empty, r_hs, r_both],
 
         tooltips="""
         <div style="font-size:14px;">
