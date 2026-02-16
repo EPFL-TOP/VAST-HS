@@ -290,7 +290,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         view=view_drug,
     )
  
-    r_hs_supp = plot_wellplate_source.circle(
+    r_hs_supp = plot_wellplate_source_supp.circle(
         'x', 'y',
         source=cds_labels_source_supp,
         view=view_hs,
@@ -305,7 +305,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
 
     )
 
-    r_both_supp = plot_wellplate_source.circle(
+    r_both_supp = plot_wellplate_source_supp.circle(
         'x', 'y',
         source=cds_labels_source_supp,
         view=view_both,
@@ -525,8 +525,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                            hs=['']*len(x_supp), has_hs=[False]*len(x_supp))
         plot_wellplate_source_supp.x_range.factors = x_supp
         plot_wellplate_source_supp.y_range.factors = ['Z']
-        #update_views()
-        update_view(cds_labels_source_supp)
+        update_view('cds_labels_source_supp. ',cds_labels_source_supp)
     dropdown_n_supp_sourcewell.on_change("value", add_source_well)
 
 
@@ -866,7 +865,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
             plot_wellplate_source.title.text = ""
             plot_wellplate_source.axis.visible = False
         print('cds_labels_source.data=', cds_labels_source.data)
-        #update_views()
         update_view(cds_labels_source)
     dropdown_well_plate_source.on_change("value", load_well_plate_source)
 
@@ -1027,7 +1025,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                            has_hs=has_hs_supp,
                                            drug=drug_supp,
                                            hs=hs_supp)
-        #update_views()
         update_view(cds_labels_source)
         update_view(cds_labels_source_supp)
         print('cds_labels_source.data=', cds_labels_source.data)
@@ -2018,7 +2015,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         display_drug_hs_name(None, None, cds_labels_source.selected.indices)
         display_drug_supp_name(None, None, cds_labels_source_supp.selected.indices)
 
-    #update_views()
     update_view(cds_labels_source)
     update_view(cds_labels_source_supp)
     remove_drug_button.on_click(remove_drug)
