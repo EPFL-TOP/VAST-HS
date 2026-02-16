@@ -525,7 +525,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                            hs=['']*len(x_supp), has_hs=[False]*len(x_supp))
         plot_wellplate_source_supp.x_range.factors = x_supp
         plot_wellplate_source_supp.y_range.factors = ['Z']
-        update_view('cds_labels_source_supp. ',cds_labels_source_supp)
+        update_view(cds_labels_source_supp)
     dropdown_n_supp_sourcewell.on_change("value", add_source_well)
 
 
