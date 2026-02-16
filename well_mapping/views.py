@@ -260,7 +260,10 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     )
 
 
-
+    view_empty_supp = bokeh.models.CDSView(filter=bokeh.models.GroupFilter(column_name="state", group="empty"))
+    view_drug_supp  = bokeh.models.CDSView(filter=bokeh.models.GroupFilter(column_name="state", group="drug"))
+    view_hs_supp    = bokeh.models.CDSView(filter=bokeh.models.GroupFilter(column_name="state", group="hs"))
+    view_both_supp  = bokeh.models.CDSView(filter=bokeh.models.GroupFilter(column_name="state", group="both"))
 
     r_empty_supp = plot_wellplate_source_supp.circle(
         'x', 'y',
@@ -273,7 +276,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         selection_fill_color = "red",
         selection_fill_alpha = 0.7,
         selection_line_color = "black",
-        view=view_empty,
+        view=view_empty_supp,
     )
         
     r_drug_supp = plot_wellplate_source_supp.circle(
@@ -287,13 +290,13 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         selection_fill_alpha = 0.7,
         selection_line_color = "black",
         nonselection_line_alpha=0.2,
-        view=view_drug,
+        view=view_drug_supp,
     )
  
     r_hs_supp = plot_wellplate_source_supp.circle(
         'x', 'y',
         source=cds_labels_source_supp,
-        view=view_hs,
+        view=view_hs_supp,
         size='size',
         line_color='#f97316',   # orange
         line_width=3,
@@ -308,7 +311,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     r_both_supp = plot_wellplate_source_supp.circle(
         'x', 'y',
         source=cds_labels_source_supp,
-        view=view_both,
+        view=view_both_supp,
         size='size',
         line_color='black',
         line_width=5,
