@@ -194,19 +194,12 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     p_lines.grid.visible = False
     p_lines.axis.visible = False
 
-
     slims = Slims(name="slims", url=accessk.end_point, username=accessk.user_name, password=accessk.password)
-
-    #empty_filter = bokeh.models.BooleanFilter([])
-    #drug_filter = bokeh.models.BooleanFilter([])
-    #view_empty = bokeh.models.CDSView(filter=empty_filter)
-    #view_drug  = bokeh.models.CDSView(filter=drug_filter)
 
     view_empty = bokeh.models.CDSView(filter=bokeh.models.GroupFilter(column_name="state", group="empty"))
     view_drug  = bokeh.models.CDSView(filter=bokeh.models.GroupFilter(column_name="state", group="drug"))
     view_hs    = bokeh.models.CDSView(filter=bokeh.models.GroupFilter(column_name="state", group="hs"))
     view_both  = bokeh.models.CDSView(filter=bokeh.models.GroupFilter(column_name="state", group="both"))
-
 
     r_empty = plot_wellplate_source.circle(
         'x', 'y',
@@ -267,10 +260,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
     )
 
 
-    empty_filter_supp = bokeh.models.BooleanFilter([])
-    drug_filter_supp  = bokeh.models.BooleanFilter([])
-    view_empty_supp   = bokeh.models.CDSView(filter=empty_filter_supp)
-    view_drug_supp    = bokeh.models.CDSView(filter=drug_filter_supp)
+
 
     r_empty_supp = plot_wellplate_source_supp.circle(
         'x', 'y',
@@ -283,26 +273,55 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         selection_fill_color = "red",
         selection_fill_alpha = 0.7,
         selection_line_color = "black",
-        view=view_empty_supp,
+        view=view_empty,
     )
         
     r_drug_supp = plot_wellplate_source_supp.circle(
         'x', 'y',
         size='size',
         source=cds_labels_source_supp,
-        fill_alpha=0.0,
         line_width=4,
-        line_color="black",
+        line_color="green",
+        fill_alpha=0,
         selection_fill_color = "red",
         selection_fill_alpha = 0.7,
         selection_line_color = "black",
         nonselection_line_alpha=0.2,
-        view=view_drug_supp,
+        view=view_drug,
     )
  
+    r_hs_supp = plot_wellplate_source.circle(
+        'x', 'y',
+        source=cds_labels_source_supp,
+        view=view_hs,
+        size='size',
+        line_color='#f97316',   # orange
+        line_width=3,
+        fill_alpha=0,
+        selection_fill_color = "red",
+        selection_fill_alpha = 0.7,
+        selection_line_color = "black",
+        nonselection_line_alpha=0.2,
+
+    )
+
+    r_both_supp = plot_wellplate_source.circle(
+        'x', 'y',
+        source=cds_labels_source_supp,
+        view=view_both,
+        size='size',
+        line_color='black',
+        line_width=5,
+        fill_color='#fde68a',   # subtle highlight
+        fill_alpha=0.6,
+        selection_fill_color = "red",
+        selection_fill_alpha = 0.7,
+        selection_line_color = "black",
+        nonselection_line_alpha=0.2,
+    )
 
     hover_grid_source = bokeh.models.HoverTool(
-        renderers=[r_drug, r_drug_supp, r_empty, r_hs, r_both],
+        renderers=[r_drug, r_empty, r_hs, r_both, r_drug_supp, r_empty_supp, r_hs_supp, r_both_supp],
 
         tooltips="""
         <div style="font-size:14px;">
@@ -439,15 +458,6 @@ def vast_handler(doc: bokeh.document.Document) -> None:
         else:
             return "empty"
 
-    #___________________________________________________________________________________________
-    def update_views():
-        has_drug = cds_labels_source.data['has_drug']
-        empty_filter.booleans = [not v for v in has_drug]
-        drug_filter.booleans  = has_drug
-
-        has_drug_supp = cds_labels_source_supp.data['has_drug']
-        empty_filter_supp.booleans = [not v for v in has_drug_supp]
-        drug_filter_supp.booleans  = has_drug_supp
 
     #___________________________________________________________________________________________
     def update_view(cds):
@@ -1014,7 +1024,7 @@ def vast_handler(doc: bokeh.document.Document) -> None:
                                            y=cds_labels_source_supp.data['y'],
                                            size=cds_labels_source_supp.data['size'],
                                            has_drug=has_drug_supp,
-                                             has_hs=has_hs_supp,
+                                           has_hs=has_hs_supp,
                                            drug=drug_supp,
                                            hs=hs_supp)
         #update_views()
